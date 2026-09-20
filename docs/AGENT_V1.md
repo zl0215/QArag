@@ -1,5 +1,8 @@
 # Agent V1：RAG → Agent Tool
 
+> 本文是 V1 交付快照。当前主线已升级到 V2，默认 8 轮并采用统一
+> `success/data/error` Tool 信封；当前行为以 [AGENT_V2.md](AGENT_V2.md) 为准。
+
 本文记录 V1 的代码审计、设计、调用链、启动与验收方法。V1 只增加
 `PiAgent + search_knowledge + AgentHarness`，保留原有 RAG、LangGraph、Milvus、
 PostgreSQL、摄取链路和前端协议。

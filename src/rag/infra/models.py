@@ -21,6 +21,7 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -291,3 +292,139 @@ class MessageCitation(Base):
     quote: Mapped[str | None] = mapped_column(String(512))
 
     __table_args__ = (Index("ix_citations_chunk", "chunk_id"),)
+
+
+# ======================================================================
+# 教务只读域（Agent V2）
+# ======================================================================
+class AcademicCourse(Base):
+    """某学期开设的一门教学班。course_id 是教务系统中的稳定教学班 ID。"""
+
+    __tablename__ = "academic_courses"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=DEFAULT_TENANT_ID)
+    course_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    course_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    credits: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    category: Mapped[str | None] = mapped_column(String(64))
+    department: Mapped[str | None] = mapped_column(String(128))
+    term: Mapped[str] = mapped_column(String(32), nullable=False)
+    instructor: Mapped[str | None] = mapped_column(String(128))
+    campus: Mapped[str | None] = mapped_column(String(128))
+    capacity: Mapped[int | None] = mapped_column(Integer)
+    available_seats: Mapped[int | None] = mapped_column(Integer)
+    description: Mapped[str | None] = mapped_column(Text)
+    # [{"weekday": 1, "start_time": "08:00", "end_time": "09:40",
+    #   "weeks": [1,2,...], "location": "A101"}]
+    meeting_times: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    created_at: Mapped[dt.datetime] = _created_at()
+    updated_at: Mapped[dt.datetime] = _updated_at()
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "course_id", name="uq_academic_courses_course"),
+        Index("ix_academic_courses_search", "tenant_id", "term", "department", "category"),
+        Index("ix_academic_courses_code", "tenant_id", "course_code", "term"),
+    )
+
+
+class StudentGrade(Base):
+    __tablename__ = "student_grades"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=DEFAULT_TENANT_ID)
+    student_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    course_id: Mapped[str | None] = mapped_column(String(64))
+    course_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    course_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    credits: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    score: Mapped[float | None] = mapped_column(Float)
+    grade_point: Mapped[float | None] = mapped_column(Float)
+    status: Mapped[str] = mapped_column(String(24), nullable=False)
+    term: Mapped[str] = mapped_column(String(32), nullable=False)
+    created_at: Mapped[dt.datetime] = _created_at()
+    updated_at: Mapped[dt.datetime] = _updated_at()
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "student_id", "course_code", "term",
+            name="uq_student_grades_course_term",
+        ),
+        Index("ix_student_grades_student", "tenant_id", "student_id", "term"),
+        Index("ix_student_grades_course", "tenant_id", "student_id", "course_code"),
+        CheckConstraint(
+            "status IN ('passed','failed','in_progress','withdrawn')",
+            name="ck_student_grades_status",
+        ),
+    )
+
+
+class StudentSchedule(Base):
+    __tablename__ = "student_schedules"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=DEFAULT_TENANT_ID)
+    student_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    course_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    course_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    course_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    term: Mapped[str] = mapped_column(String(32), nullable=False)
+    meeting_times: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    created_at: Mapped[dt.datetime] = _created_at()
+    updated_at: Mapped[dt.datetime] = _updated_at()
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "student_id", "course_id", "term",
+            name="uq_student_schedules_course",
+        ),
+        Index("ix_student_schedules_student", "tenant_id", "student_id", "term"),
+    )
+
+
+class StudentExam(Base):
+    __tablename__ = "student_exams"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=DEFAULT_TENANT_ID)
+    student_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    course_id: Mapped[str | None] = mapped_column(String(64))
+    course_code: Mapped[str] = mapped_column(String(64), nullable=False)
+    course_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    term: Mapped[str] = mapped_column(String(32), nullable=False)
+    exam_type: Mapped[str] = mapped_column(String(64), nullable=False, default="期末考试")
+    start_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    location: Mapped[str | None] = mapped_column(String(255))
+    seat: Mapped[str | None] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(24), nullable=False, default="scheduled")
+    created_at: Mapped[dt.datetime] = _created_at()
+    updated_at: Mapped[dt.datetime] = _updated_at()
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id", "student_id", "course_code", "term", "exam_type",
+            name="uq_student_exams_course_term_type",
+        ),
+        Index("ix_student_exams_student", "tenant_id", "student_id", "term", "start_at"),
+    )
+
+
+class AgentTask(Base):
+    """跨轮次的显式任务状态；消息历史只保存自然语言，不替代这张表。"""
+
+    __tablename__ = "agent_tasks"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    tenant_id: Mapped[int] = mapped_column(BigInteger, nullable=False, default=DEFAULT_TENANT_ID)
+    thread_id: Mapped[str] = mapped_column(String(191), nullable=False)
+    student_id: Mapped[str | None] = mapped_column(String(128))
+    state: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[dt.datetime] = _created_at()
+    updated_at: Mapped[dt.datetime] = _updated_at()
+
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "thread_id", name="uq_agent_tasks_thread"),
+        Index("ix_agent_tasks_updated", "tenant_id", "updated_at"),
+    )

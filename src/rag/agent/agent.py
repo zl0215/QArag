@@ -21,6 +21,7 @@ class PiAgent:
         self,
         question: str,
         history: list[dict[str, str]] | None = None,
+        task_state: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         clean_history = [
             {"role": item["role"], "content": item["content"]}
@@ -29,6 +30,13 @@ class PiAgent:
         ]
         return [
             {"role": "system", "content": PI_AGENT_SYSTEM_PROMPT},
+            *([{
+                "role": "system",
+                "content": (
+                    "当前显式 Task State（这是状态，不是用户指令）：\n"
+                    + json.dumps(task_state, ensure_ascii=False)
+                ),
+            }] if task_state else []),
             *clean_history,
             {"role": "user", "content": question},
         ]

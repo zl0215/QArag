@@ -111,7 +111,9 @@ async def test_school_policy_questions_call_search_knowledge(
     assert result.route == "generate"
     assert result.verified is True
     assert retrieval.queries == [query]
-    assert result.tool_calls == [{"name": "search_knowledge", "iteration": 1}]
+    assert result.tool_calls == [
+        {"name": "search_knowledge", "iteration": 1, "success": True}
+    ]
     assert result.citations[0]["chunk_id"] == 1
     tool_message = llm.requests[1]["messages"][-1]
     assert tool_message["role"] == "tool"
@@ -155,7 +157,9 @@ async def test_school_policy_guard_prevents_direct_unsupported_answer() -> None:
 
     assert result.route == "generate"
     assert retrieval.queries == ["学校重修有什么规定？"]
-    assert result.tool_calls == [{"name": "search_knowledge", "iteration": 1}]
+    assert result.tool_calls == [
+        {"name": "search_knowledge", "iteration": 1, "success": True}
+    ]
 
 
 @pytest.mark.asyncio

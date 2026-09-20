@@ -1,6 +1,6 @@
 # RAG-Agent
 
-面向 PDF / Word / Markdown 的知识库问答服务。解析 → 结构感知分块 → 混合检索 → Pi Agent Tool Calling → 带引用的答案。
+面向 PDF / Word / Markdown 的知识库问答与教务任务服务。Pi Agent 可组合 RAG、课程、成绩、课表、考试和冲突检查工具完成多步骤任务。
 
 **技术栈**：FastAPI · LangGraph · Milvus · PostgreSQL · Neo4j · BGE · Docker
 
@@ -116,6 +116,7 @@ models/
 | [docs/RESUME.md](docs/RESUME.md) | STAR 简历条目 + 实测数字的复现方式（**可写的 / 还不能写的分开列**）|
 | [docs/RAG_PROJECT_CASE_STUDY.md](docs/RAG_PROJECT_CASE_STUDY.md) | 完整项目复盘：问题、根因、解决方案、证据、责任边界与优化路线 |
 | [docs/AGENT_V1.md](docs/AGENT_V1.md) | RAG → Agent Tool V1：代码审计、调用链、启动、测试、Demo 与限制 |
+| [docs/AGENT_V2.md](docs/AGENT_V2.md) | 教务 Agent V2：多 Tool Loop、Task State、多轮任务、错误恢复与 Demo |
 
 ---
 
@@ -144,19 +145,20 @@ models/
                     └──────┬───────┘
                            ↓
                     ┌──────────────┐
-                    │ Pi Agent     │ 判断 → 0..N 次 search_knowledge → 最终回答
+                    │ Pi Agent     │ Observe → Decide → 0..N Tools → Evaluate
                     └──────┬───────┘
                            ↓
                     ┌──────────────┐
-                    │ 引用校验      │ 无证据/无有效引用时确定性拒答
+                    │ Harness      │ Task State · 错误恢复 · 8 轮上限 · 引用校验
                     └──────────────┘
 ```
 
-原有 LangGraph RAG 图仍保留，可供旧链路、对照实验和后续节点复用；`/api/v1/chat`
-在 V1 中由 `AgentHarness` 统一驱动。运行 Agent 验收：
+工具包括 `search_knowledge`、`search_courses`、`query_grades`、`query_schedule`、
+`query_exam` 和 `check_schedule_conflict`。原有 LangGraph RAG 图仍保留，可供旧链路、
+对照实验和后续节点复用；`/api/v1/chat` 由 `AgentHarness` 统一驱动。运行 Agent 验收：
 
 ```bash
-uv run pytest tests/test_agent_v1.py
+uv run pytest
 ```
 
 ---
@@ -183,9 +185,9 @@ src/rag/
 ├── parsers/     PDF / DOCX / Markdown → DocNode 树
 ├── chunking/    结构感知分块 + token 计数
 ├── providers/   embedding / reranker / llm 的多实现
-├── infra/       Postgres ORM、Milvus、内存向量库、仓储（含任务队列）
-├── services/    摄取管道、检索管道、RRF 融合
-├── agent/       Pi Agent、Tool、Harness、Prompt，以及保留的 LangGraph 状态图
+├── infra/       Postgres ORM、Milvus、教务读模型、Task State、仓储
+├── services/    教务查询、摄取管道、检索管道、RRF 融合
+├── agent/       Pi Agent、六个 Tool、Task State、Harness、Prompt、保留的 LangGraph
 ├── worker/      后台摄取进程（python -m rag.worker）
 └── api/         HTTP 路由 + static/（Web 界面，由 FastAPI 直接托管）
 scripts/
@@ -195,6 +197,7 @@ scripts/
 ├── smoke_milvus_lite.py  Milvus Lite 能力探测
 ├── shot_ui.py         改完界面后截图验收（走 CDP，能等流式问答渲染完）
 ├── serve_inference.py GPU 推理服务：TEI 兼容的 /embed 与 /rerank（跑在 AutoDL）
+├── seed_academic_demo.py V2 教务 Demo 数据（幂等写入 PostgreSQL）
 └── setup_autodl.sh    AutoDL 一键初始化
 ```
 

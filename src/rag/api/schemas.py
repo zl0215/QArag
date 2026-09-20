@@ -86,6 +86,12 @@ class ChatRequest(BaseModel):
         description="同一 thread_id 共享对话历史与 agent checkpoint；不传则每次独立",
     )
     top_k: int = Field(default=5, ge=1, le=50)
+    student_id: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=128,
+        description="V2 教务上下文。生产环境应由认证层注入，不能信任客户端自报。",
+    )
     stream: bool = False
 
     @field_validator("question")

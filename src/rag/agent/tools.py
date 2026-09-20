@@ -1,13 +1,9 @@
-"""Agent 可调用的工具。
-
-V1 只注册一个只读工具：``search_knowledge``。它复用 RetrievalService，
-不生成答案，也不复制 Milvus/PostgreSQL 的检索实现。
-"""
+"""Agent 工具公共协议与知识库工具。"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, field
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -63,12 +59,44 @@ class SearchKnowledgeResult(BaseModel):
 class ToolContext:
     tenant_id: int = 1
     top_k: int | None = None
+    student_id: str | None = None
+    thread_id: str = ""
 
 
 @dataclass
 class ToolExecution:
     payload: dict[str, Any]
-    chunks: list[dict[str, Any]]
+    chunks: list[dict[str, Any]] = field(default_factory=list)
+
+
+class AgentTool(Protocol):
+    name: str
+    description: str
+
+    @property
+    def definition(self) -> dict[str, Any]: ...
+
+    async def execute(self, arguments: dict[str, Any], context: ToolContext) -> ToolExecution: ...
+
+
+class ToolExecutionError(Exception):
+    def __init__(self, code: str, message: str, *, retryable: bool = False) -> None:
+        super().__init__(message)
+        self.code = code
+        self.public_message = message
+        self.retryable = retryable
+
+
+def tool_success(data: Any) -> dict[str, Any]:
+    return {"success": True, "data": data, "error": None}
+
+
+def tool_failure(code: str, message: str, *, retryable: bool) -> dict[str, Any]:
+    return {
+        "success": False,
+        "data": None,
+        "error": {"code": code, "message": message, "retryable": retryable},
+    }
 
 
 async def search_knowledge(
@@ -132,16 +160,20 @@ class SearchKnowledgeTool:
             top_k=context.top_k,
         )
         return ToolExecution(
-            payload=result.model_dump(),
+            payload=tool_success(result.model_dump()),
             chunks=[item.to_agent_chunk() for item in result.results],
         )
 
 
 __all__ = [
+    "AgentTool",
     "KnowledgeResult",
     "SearchKnowledgeResult",
     "SearchKnowledgeTool",
     "ToolContext",
     "ToolExecution",
+    "ToolExecutionError",
     "search_knowledge",
+    "tool_failure",
+    "tool_success",
 ]

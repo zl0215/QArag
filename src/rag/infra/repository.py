@@ -112,6 +112,65 @@ class JobRecord:
     next_run_at: dt.datetime | None = None
 
 
+@dataclass
+class CourseRecord:
+    course_id: str
+    course_code: str
+    name: str
+    credits: float
+    term: str
+    tenant_id: int = DEFAULT_TENANT_ID
+    category: str = ""
+    department: str = ""
+    instructor: str = ""
+    campus: str = ""
+    capacity: int | None = None
+    available_seats: int | None = None
+    description: str = ""
+    meeting_times: list[dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class GradeRecord:
+    student_id: str
+    course_code: str
+    course_name: str
+    credits: float
+    status: str
+    term: str
+    tenant_id: int = DEFAULT_TENANT_ID
+    course_id: str = ""
+    score: float | None = None
+    grade_point: float | None = None
+
+
+@dataclass
+class ScheduleRecord:
+    student_id: str
+    course_id: str
+    course_code: str
+    course_name: str
+    term: str
+    meeting_times: list[dict[str, Any]]
+    tenant_id: int = DEFAULT_TENANT_ID
+
+
+@dataclass
+class ExamRecord:
+    student_id: str
+    course_code: str
+    course_name: str
+    term: str
+    exam_type: str
+    start_at: dt.datetime
+    end_at: dt.datetime
+    tenant_id: int = DEFAULT_TENANT_ID
+    course_id: str = ""
+    location: str = ""
+    seat: str = ""
+    status: str = "scheduled"
+
+
 @runtime_checkable
 class Repository(Protocol):
     # with_checkpointer：只有 API 需要 LangGraph checkpointer。
@@ -144,6 +203,34 @@ class Repository(Protocol):
     async def append_turn(self, thread_id: str, *, question: str, answer: str,
                           tenant_id: int = DEFAULT_TENANT_ID, **meta: Any) -> None: ...
 
+    # ---- Agent task state ----
+    async def get_task_state(self, thread_id: str,
+                             tenant_id: int = DEFAULT_TENANT_ID) -> dict | None: ...
+    async def save_task_state(self, thread_id: str, state: dict, *,
+                              tenant_id: int = DEFAULT_TENANT_ID,
+                              student_id: str | None = None) -> None: ...
+
+    # ---- academic read model ----
+    async def list_courses(self, *, tenant_id: int = DEFAULT_TENANT_ID,
+                           term: str | None = None, keyword: str | None = None,
+                           department: str | None = None, category: str | None = None,
+                           course_ids: list[str] | None = None,
+                           min_credits: float | None = None,
+                           max_credits: float | None = None,
+                           limit: int = 20) -> list[CourseRecord]: ...
+    async def list_grades(self, student_id: str, *,
+                          tenant_id: int = DEFAULT_TENANT_ID,
+                          term: str | None = None, status: str | None = None,
+                          course_code: str | None = None) -> list[GradeRecord]: ...
+    async def list_schedule(self, student_id: str, *,
+                            tenant_id: int = DEFAULT_TENANT_ID,
+                            term: str | None = None) -> list[ScheduleRecord]: ...
+    async def list_exams(self, student_id: str, *,
+                         tenant_id: int = DEFAULT_TENANT_ID,
+                         term: str | None = None,
+                         course_code: str | None = None,
+                         from_at: dt.datetime | None = None) -> list[ExamRecord]: ...
+
     # ---- jobs ----
     async def enqueue_job(self, **fields: Any) -> JobRecord: ...
     async def claim_job(self, worker_id: str) -> JobRecord | None: ...
@@ -169,6 +256,11 @@ class MemoryRepository:
         self._chunks: dict[int, ChunkRecord] = {}
         self._jobs: dict[int, JobRecord] = {}
         self._messages: dict[str, list[MessageRecord]] = {}
+        self._task_states: dict[tuple[int, str], dict] = {}
+        self._courses: list[CourseRecord] = []
+        self._grades: list[GradeRecord] = []
+        self._schedules: list[ScheduleRecord] = []
+        self._exams: list[ExamRecord] = []
         self._doc_seq = 0
         self._chunk_seq = 0
         self._job_seq = 0
@@ -286,6 +378,95 @@ class MemoryRepository:
             base = len(box)
             box.append(MessageRecord(role="user", content=question, seq=base + 1))
             box.append(MessageRecord(role="assistant", content=answer, seq=base + 2))
+
+    # ---- Agent task state / academic read model ----
+    async def get_task_state(self, thread_id: str,
+                             tenant_id: int = DEFAULT_TENANT_ID) -> dict | None:
+        state = self._task_states.get((tenant_id, thread_id))
+        return dict(state) if state else None
+
+    async def save_task_state(self, thread_id: str, state: dict, *,
+                              tenant_id: int = DEFAULT_TENANT_ID,
+                              student_id: str | None = None) -> None:
+        self._task_states[(tenant_id, thread_id)] = dict(state)
+
+    def seed_academic_data(
+        self,
+        *,
+        courses: list[CourseRecord] | None = None,
+        grades: list[GradeRecord] | None = None,
+        schedules: list[ScheduleRecord] | None = None,
+        exams: list[ExamRecord] | None = None,
+    ) -> None:
+        """测试和本地 Demo 的显式种子入口；生产数据仍从 PostgreSQL 读取。"""
+        self._courses.extend(courses or [])
+        self._grades.extend(grades or [])
+        self._schedules.extend(schedules or [])
+        self._exams.extend(exams or [])
+
+    async def list_courses(self, *, tenant_id: int = DEFAULT_TENANT_ID,
+                           term: str | None = None, keyword: str | None = None,
+                           department: str | None = None, category: str | None = None,
+                           course_ids: list[str] | None = None,
+                           min_credits: float | None = None,
+                           max_credits: float | None = None,
+                           limit: int = 20) -> list[CourseRecord]:
+        keyword_cf = (keyword or "").casefold()
+        wanted_ids = set(course_ids or [])
+        rows = [row for row in self._courses if row.tenant_id == tenant_id]
+        if term:
+            rows = [row for row in rows if row.term == term]
+        if keyword_cf:
+            rows = [row for row in rows if keyword_cf in " ".join((
+                row.course_code, row.name, row.description, row.department, row.category,
+            )).casefold()]
+        if department:
+            rows = [row for row in rows if row.department == department]
+        if category:
+            rows = [row for row in rows if row.category == category]
+        if wanted_ids:
+            rows = [row for row in rows if row.course_id in wanted_ids]
+        if min_credits is not None:
+            rows = [row for row in rows if row.credits >= min_credits]
+        if max_credits is not None:
+            rows = [row for row in rows if row.credits <= max_credits]
+        return rows[:limit]
+
+    async def list_grades(self, student_id: str, *,
+                          tenant_id: int = DEFAULT_TENANT_ID,
+                          term: str | None = None, status: str | None = None,
+                          course_code: str | None = None) -> list[GradeRecord]:
+        rows = [r for r in self._grades
+                if r.tenant_id == tenant_id and r.student_id == student_id]
+        if term:
+            rows = [r for r in rows if r.term == term]
+        if status:
+            rows = [r for r in rows if r.status == status]
+        if course_code:
+            rows = [r for r in rows if r.course_code == course_code]
+        return rows
+
+    async def list_schedule(self, student_id: str, *,
+                            tenant_id: int = DEFAULT_TENANT_ID,
+                            term: str | None = None) -> list[ScheduleRecord]:
+        rows = [r for r in self._schedules
+                if r.tenant_id == tenant_id and r.student_id == student_id]
+        return [r for r in rows if not term or r.term == term]
+
+    async def list_exams(self, student_id: str, *,
+                         tenant_id: int = DEFAULT_TENANT_ID,
+                         term: str | None = None,
+                         course_code: str | None = None,
+                         from_at: dt.datetime | None = None) -> list[ExamRecord]:
+        rows = [r for r in self._exams
+                if r.tenant_id == tenant_id and r.student_id == student_id]
+        if term:
+            rows = [r for r in rows if r.term == term]
+        if course_code:
+            rows = [r for r in rows if r.course_code == course_code]
+        if from_at:
+            rows = [r for r in rows if r.start_at >= from_at]
+        return sorted(rows, key=lambda r: r.start_at)
 
     # ---- jobs ----
     async def enqueue_job(self, **fields: Any) -> JobRecord:
@@ -669,6 +850,152 @@ class PostgresRepository:
             conv.last_message_at = now
             await session.commit()
 
+    # ---- Agent task state ----
+    async def get_task_state(self, thread_id: str,
+                             tenant_id: int = DEFAULT_TENANT_ID) -> dict | None:
+        from sqlalchemy import select
+
+        from rag.infra.models import AgentTask
+
+        async with self._db.session() as session:
+            task = await session.scalar(select(AgentTask).where(
+                AgentTask.tenant_id == tenant_id,
+                AgentTask.thread_id == thread_id,
+            ))
+            return dict(task.state) if task else None
+
+    async def save_task_state(self, thread_id: str, state: dict, *,
+                              tenant_id: int = DEFAULT_TENANT_ID,
+                              student_id: str | None = None) -> None:
+        from sqlalchemy import select
+
+        from rag.infra.models import AgentTask
+
+        async with self._db.session() as session:
+            task = await session.scalar(
+                select(AgentTask).where(
+                    AgentTask.tenant_id == tenant_id,
+                    AgentTask.thread_id == thread_id,
+                ).with_for_update()
+            )
+            if task is None:
+                task = AgentTask(
+                    tenant_id=tenant_id,
+                    thread_id=thread_id,
+                    student_id=student_id,
+                    state=state,
+                )
+                session.add(task)
+            else:
+                task.state = state
+                if student_id:
+                    task.student_id = student_id
+            await session.commit()
+
+    # ---- academic read model ----
+    async def list_courses(self, *, tenant_id: int = DEFAULT_TENANT_ID,
+                           term: str | None = None, keyword: str | None = None,
+                           department: str | None = None, category: str | None = None,
+                           course_ids: list[str] | None = None,
+                           min_credits: float | None = None,
+                           max_credits: float | None = None,
+                           limit: int = 20) -> list[CourseRecord]:
+        from sqlalchemy import or_, select
+
+        from rag.infra.models import AcademicCourse
+
+        stmt = select(AcademicCourse).where(AcademicCourse.tenant_id == tenant_id)
+        if term:
+            stmt = stmt.where(AcademicCourse.term == term)
+        if keyword:
+            like = f"%{keyword}%"
+            stmt = stmt.where(or_(
+                AcademicCourse.course_code.ilike(like),
+                AcademicCourse.name.ilike(like),
+                AcademicCourse.description.ilike(like),
+                AcademicCourse.department.ilike(like),
+                AcademicCourse.category.ilike(like),
+            ))
+        if department:
+            stmt = stmt.where(AcademicCourse.department == department)
+        if category:
+            stmt = stmt.where(AcademicCourse.category == category)
+        if course_ids:
+            stmt = stmt.where(AcademicCourse.course_id.in_(course_ids))
+        if min_credits is not None:
+            stmt = stmt.where(AcademicCourse.credits >= min_credits)
+        if max_credits is not None:
+            stmt = stmt.where(AcademicCourse.credits <= max_credits)
+        stmt = stmt.order_by(AcademicCourse.course_code, AcademicCourse.course_id).limit(limit)
+        async with self._db.session() as session:
+            rows = (await session.scalars(stmt)).all()
+            return [_to_course_record(row) for row in rows]
+
+    async def list_grades(self, student_id: str, *,
+                          tenant_id: int = DEFAULT_TENANT_ID,
+                          term: str | None = None, status: str | None = None,
+                          course_code: str | None = None) -> list[GradeRecord]:
+        from sqlalchemy import select
+
+        from rag.infra.models import StudentGrade
+
+        stmt = select(StudentGrade).where(
+            StudentGrade.tenant_id == tenant_id,
+            StudentGrade.student_id == student_id,
+        )
+        if term:
+            stmt = stmt.where(StudentGrade.term == term)
+        if status:
+            stmt = stmt.where(StudentGrade.status == status)
+        if course_code:
+            stmt = stmt.where(StudentGrade.course_code == course_code)
+        stmt = stmt.order_by(StudentGrade.term, StudentGrade.course_code)
+        async with self._db.session() as session:
+            rows = (await session.scalars(stmt)).all()
+            return [_to_grade_record(row) for row in rows]
+
+    async def list_schedule(self, student_id: str, *,
+                            tenant_id: int = DEFAULT_TENANT_ID,
+                            term: str | None = None) -> list[ScheduleRecord]:
+        from sqlalchemy import select
+
+        from rag.infra.models import StudentSchedule
+
+        stmt = select(StudentSchedule).where(
+            StudentSchedule.tenant_id == tenant_id,
+            StudentSchedule.student_id == student_id,
+        )
+        if term:
+            stmt = stmt.where(StudentSchedule.term == term)
+        stmt = stmt.order_by(StudentSchedule.course_code)
+        async with self._db.session() as session:
+            rows = (await session.scalars(stmt)).all()
+            return [_to_schedule_record(row) for row in rows]
+
+    async def list_exams(self, student_id: str, *,
+                         tenant_id: int = DEFAULT_TENANT_ID,
+                         term: str | None = None,
+                         course_code: str | None = None,
+                         from_at: dt.datetime | None = None) -> list[ExamRecord]:
+        from sqlalchemy import select
+
+        from rag.infra.models import StudentExam
+
+        stmt = select(StudentExam).where(
+            StudentExam.tenant_id == tenant_id,
+            StudentExam.student_id == student_id,
+        )
+        if term:
+            stmt = stmt.where(StudentExam.term == term)
+        if course_code:
+            stmt = stmt.where(StudentExam.course_code == course_code)
+        if from_at:
+            stmt = stmt.where(StudentExam.start_at >= from_at)
+        stmt = stmt.order_by(StudentExam.start_at)
+        async with self._db.session() as session:
+            rows = (await session.scalars(stmt)).all()
+            return [_to_exam_record(row) for row in rows]
+
     # ---- jobs ----
     async def enqueue_job(self, **fields: Any) -> JobRecord:
         from sqlalchemy import select
@@ -910,6 +1237,69 @@ def _to_job_record(job) -> JobRecord:  # noqa: ANN001
         payload=job.payload, result=job.result, last_error=job.last_error,
         locked_by=job.locked_by, locked_until=job.locked_until,
         next_run_at=job.next_run_at,
+    )
+
+
+def _to_course_record(row) -> CourseRecord:  # noqa: ANN001
+    return CourseRecord(
+        tenant_id=row.tenant_id,
+        course_id=row.course_id,
+        course_code=row.course_code,
+        name=row.name,
+        credits=float(row.credits),
+        category=row.category or "",
+        department=row.department or "",
+        term=row.term,
+        instructor=row.instructor or "",
+        campus=row.campus or "",
+        capacity=row.capacity,
+        available_seats=row.available_seats,
+        description=row.description or "",
+        meeting_times=list(row.meeting_times or []),
+    )
+
+
+def _to_grade_record(row) -> GradeRecord:  # noqa: ANN001
+    return GradeRecord(
+        tenant_id=row.tenant_id,
+        student_id=row.student_id,
+        course_id=row.course_id or "",
+        course_code=row.course_code,
+        course_name=row.course_name,
+        credits=float(row.credits),
+        score=float(row.score) if row.score is not None else None,
+        grade_point=float(row.grade_point) if row.grade_point is not None else None,
+        status=row.status,
+        term=row.term,
+    )
+
+
+def _to_schedule_record(row) -> ScheduleRecord:  # noqa: ANN001
+    return ScheduleRecord(
+        tenant_id=row.tenant_id,
+        student_id=row.student_id,
+        course_id=row.course_id,
+        course_code=row.course_code,
+        course_name=row.course_name,
+        term=row.term,
+        meeting_times=list(row.meeting_times or []),
+    )
+
+
+def _to_exam_record(row) -> ExamRecord:  # noqa: ANN001
+    return ExamRecord(
+        tenant_id=row.tenant_id,
+        student_id=row.student_id,
+        course_id=row.course_id or "",
+        course_code=row.course_code,
+        course_name=row.course_name,
+        term=row.term,
+        exam_type=row.exam_type,
+        start_at=row.start_at,
+        end_at=row.end_at,
+        location=row.location or "",
+        seat=row.seat or "",
+        status=row.status,
     )
 
 

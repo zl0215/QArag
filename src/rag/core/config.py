@@ -171,8 +171,8 @@ class Settings(BaseSettings):
     agent_max_retries: int = 2
     agent_recursion_limit: int = 50
     agent_summary_after_turns: int = 20
-    # V1 Pi Tool Calling loop。与旧 LangGraph 的 rewrite 次数分开配置。
-    agent_max_iterations: int = 4
+    # V2 多工具任务 Loop。与旧 LangGraph 的 rewrite 次数分开配置。
+    agent_max_iterations: int = 8
     agent_tool_timeout_seconds: int = 120
 
     # ---------------- Neo4j ----------------

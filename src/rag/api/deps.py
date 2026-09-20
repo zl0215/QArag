@@ -30,6 +30,7 @@ from rag.core.logging import get_logger
 from rag.infra import build_repository, build_vector_store
 from rag.providers import build_embedding_provider, build_llm, build_reranker
 from rag.providers.base import is_enabled
+from rag.services.academic import AcademicService
 from rag.services.ingestion import IngestionService
 from rag.services.retrieval import RetrievalService
 from rag.services.translate import build_translator
@@ -50,6 +51,7 @@ class AppContext:
     repository: Any = None
     retrieval: RetrievalService | None = None
     ingestion: IngestionService | None = None
+    academic: AcademicService | None = None
     graph: Any = None
     agent_harness: Any = None
     checkpointer: Any = None
@@ -119,6 +121,7 @@ class AppContext:
             fused_top_k=settings.retrieve_fused_top_k,
             final_top_k=settings.retrieve_final_top_k,
         )
+        self.academic = AcademicService(self.repository)
         if chunker is not None:
             self.ingestion = IngestionService(
                 repository=self.repository,
@@ -139,17 +142,32 @@ class AppContext:
             top_k=settings.retrieve_final_top_k, max_retries=settings.agent_max_retries,
         )
 
-        # ---- 7. V1 Agent Harness ----
-        # 旧 LangGraph 保留；/chat 改由轻量 Pi loop 驱动，工具内部复用同一 retrieval。
+        # ---- 7. V2 Agent Harness ----
+        # 旧 LangGraph 保留；/chat 由轻量 Pi loop 组合 RAG 与教务只读工具。
+        from rag.agent.academic_tools import (
+            CheckScheduleConflictTool,
+            QueryExamTool,
+            QueryGradesTool,
+            QueryScheduleTool,
+            SearchCoursesTool,
+        )
         from rag.agent.agent import PiAgent
         from rag.agent.harness import AgentHarness
         from rag.agent.tools import SearchKnowledgeTool
 
-        search_tool = SearchKnowledgeTool(self.retrieval)
-        pi_agent = PiAgent(llm=self.llm, tool_definitions=[search_tool.definition])
+        tools = [
+            SearchKnowledgeTool(self.retrieval),
+            SearchCoursesTool(self.academic),
+            QueryGradesTool(self.academic),
+            QueryScheduleTool(self.academic),
+            QueryExamTool(self.academic),
+            CheckScheduleConflictTool(self.academic),
+        ]
+        pi_agent = PiAgent(llm=self.llm, tool_definitions=[tool.definition for tool in tools])
         self.agent_harness = AgentHarness(
             agent=pi_agent,
-            tools=[search_tool],
+            tools=tools,
+            task_store=self.repository,
             max_iterations=settings.agent_max_iterations,
             tool_timeout_seconds=settings.agent_tool_timeout_seconds,
         )

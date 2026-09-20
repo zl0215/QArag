@@ -155,6 +155,7 @@ async def _run(ctx: AppContext, payload: ChatRequest, thread_id: str) -> dict:
         thread_id=thread_id,
         history=history,
         top_k=payload.top_k,
+        student_id=payload.student_id,
     )
     state = result.to_state()
     await _remember(ctx, thread_id, payload.question, state, started)
