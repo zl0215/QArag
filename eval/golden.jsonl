@@ -1,0 +1,52 @@
+{"id":"s01","type":"single_hop","question":"GBSVM 里粒度球分类器的时间复杂度能降到多少？","gold_chunk_ids":[32,33],"gold_doc_ids":[6],"note":"#32 'time complexity of granular-ball ... equal to the time complexity of generating'；#33 'classifier is reduced to close to O(N), which is very low'。答案跨两个相邻块，两块都算命中。"}
+{"id":"s02","type":"single_hop","question":"GBSVM 的 PSO 算法里粒子数 pop 设成了多少？","gold_chunk_ids":[68],"gold_doc_ids":[6],"note":"#68 'number pop of particles is 400; the maximum number of iterations max_iter is 1050; inertial factor w is set to 0.5'。"}
+{"id":"s03","type":"single_hop","question":"GBSVM 里纯度阈值是在什么区间内寻优的？","gold_chunk_ids":[75],"gold_doc_ids":[6],"note":"#75 'purity threshold is optimized in the interval [0.7,1] with a step size of 0.015'。"}
+{"id":"s04","type":"single_hop","question":"ISFFSVM 是在哪个模型的基础上改进出来的？","gold_chunk_ids":[97],"gold_doc_ids":[7],"note":"#97 'incorporating slack factor values in the SFFSVM model is to propose an improved slack-factor-based fuzzy support vector machine (ISFFSVM) model'。"}
+{"id":"s05","type":"single_hop","question":"ISFFSVM 的计算复杂度是多少？","gold_chunk_ids":[114],"gold_doc_ids":[7],"note":"#114 'the same as in SFFSVM, which is O(N)'。"}
+{"id":"s06","type":"single_hop","question":"ISFFSVM 的位置参数 a 在示意图里取的是多少？","gold_chunk_ids":[111],"gold_doc_ids":[7],"note":"#111 'in Fig.3(b), the decision boundary is drawn with a=1.3'。"}
+{"id":"s07","type":"single_hop","question":"Pin-GBTSVM 被用在哪两种疾病的诊断上？","gold_chunk_ids":[147],"gold_doc_ids":[8],"note":"#147 'Alzheimer's disease (AD) and Schizophrenia (SCZ)'。"}
+{"id":"s08","type":"single_hop","question":"Pin-GBTSVM 里生成粒度球的计算复杂度是多少？","gold_chunk_ids":[171],"gold_doc_ids":[8],"note":"#171 'complexity of generating granular balls is (or less than) O(2^nt)'。"}
+{"id":"s09","type":"single_hop","question":"Pin-GBTSVM 的实验里用了哪个阿尔茨海默病公开数据集？","gold_chunk_ids":[189],"gold_doc_ids":[8],"note":"#189 表头 'PERFORMANCE COMPARISON ... ON THE ADNI DATASETS'；#174 亦有 COBRE。"}
+{"id":"s10","type":"single_hop","question":"Pin-GBTSVM 被认为缺少哪一条统计学习原则？","gold_chunk_ids":[168],"gold_doc_ids":[8],"note":"#168 'Additionally, Pin-GBTSVM lacks the SRM principle'。"}
+{"id":"s11","type":"single_hop","question":"RD-IFTSVM 在多少个不平衡基准数据集上做了实验？","gold_chunk_ids":[213],"gold_doc_ids":[9],"note":"#213 'over 30 imbalanced benchmark datasets, employing linear and ... kernels'。"}
+{"id":"s12","type":"single_hop","question":"RD-IFTSVM 里近邻数 k 是怎么取的？","gold_chunk_ids":[230],"gold_doc_ids":[9],"note":"#230 'In this article, we set k = √N_s, where N_s represents the total number of patterns belonging to the class of x_i'。"}
+{"id":"s13","type":"single_hop","question":"RD-IFTSVM 的时间复杂度是多少？","gold_chunk_ids":[259],"gold_doc_ids":[9],"note":"#259 'the proposed method is (IR+1)O(n1^3)+O(n2^2)+O(n^2)'。"}
+{"id":"s14","type":"single_hop","question":"RD-IFTSVM 用哪种模糊集来刻画非隶属度？","gold_chunk_ids":[214],"gold_doc_ids":[9],"note":"#214 'Index Terms—Intuitionistic fuzzy set (IFS), nonmembership ...'，正文即用 IFS 的隶属/非隶属双自由度。"}
+{"id":"s15","type":"single_hop","question":"SFFSVM 里 slack factor（松弛因子）的定义是什么？","gold_chunk_ids":[289],"gold_doc_ids":[10],"note":"#289 'the relative distances between samples and an estimated hyperplane, called slack factors, are used to define the fuzzy membership function'。"}
+{"id":"s16","type":"single_hop","question":"SFFSVM 的计算复杂度是多少？","gold_chunk_ids":[323],"gold_doc_ids":[10],"note":"#323 'computational complexity of SFFSVM is O(dN^2)'。"}
+{"id":"s17","type":"single_hop","question":"SFFSVM 里的平滑参数 β 的取值范围是什么？","gold_chunk_ids":[313],"gold_doc_ids":[10],"note":"#313 'φ(x_i)=e^{-βξ_i}x_i where ... β ∈ [0,1] is a smoothing parameter'。"}
+{"id":"s18","type":"single_hop","question":"CKA-FSVM 这篇论文发表在哪个期刊、哪一年、第几卷？","gold_chunk_ids":[395],"gold_doc_ids":[11],"note":"#395 'Fuzzy Sets and Systems 394 (2020) 110–123'。"}
+{"id":"s19","type":"single_hop","question":"CKA 度量的是什么？","gold_chunk_ids":[397,402],"gold_doc_ids":[11],"note":"#397 'kernel alignment (CKA), which measures the degree of similarity between two kernels (or kernel matrices)'。"}
+{"id":"s20","type":"single_hop","question":"CKA-FSVM 实验用的蛋白质数据集有多少折？","gold_chunk_ids":[431],"gold_doc_ids":[11],"note":"#431 'the Protein Fold Prediction data set, composed of 27 folds which have six or more proteins'。"}
+{"id":"s21","type":"single_hop","question":"课程学习式 FSVM 的核心思想是什么？","gold_chunk_ids":[447],"gold_doc_ids":[12],"note":"#447 'model initially learns easy samples to avoid noise interference and obtain a good initial solution, before proceeding to'。"}
+{"id":"s22","type":"single_hop","question":"课程学习式 FSVM 里 DBSCAN 的时间复杂度是多少？","gold_chunk_ids":[462],"gold_doc_ids":[12],"note":"#462 'Efficiency: DBSCAN has a time complexity of O(n log n)'。"}
+{"id":"s23","type":"single_hop","question":"课程学习式 FSVM 的实验里参数 β 设成了多少？","gold_chunk_ids":[477],"gold_doc_ids":[12],"note":"#477 'The parameter β of Eq.(9) and Eq.(13) is set to 0.5'。"}
+{"id":"s24","type":"single_hop","question":"GBFSVM 里粒度球的 purity（纯度）是怎么定义的？","gold_chunk_ids":[588],"gold_doc_ids":[14],"note":"#588 'a fuzzy granular-ball with a known purity, which is defined as the proportion of majority samples within the granular-ball'。"}
+{"id":"s25","type":"single_hop","question":"GBFSVM 在什么条件下会退化成普通的 FSVM？","gold_chunk_ids":[601],"gold_doc_ids":[14],"note":"#601 'to 0, the GBFSVM model (13) is equivalent to FSVM (6)'，即半径 R→0 时。"}
+{"id":"s26","type":"single_hop","question":"GB-CLFSVM 这篇论文发表在哪个会议上？","gold_chunk_ids":[633],"gold_doc_ids":[15],"note":"#633 '2025 IEEE 24th International Conference on Trust, Security and Privacy in Computing and Communications (TrustCom)'。"}
+{"id":"s27","type":"single_hop","question":"GB-CLFSVM 的粒度球动态分裂策略是基于什么聚类做的？","gold_chunk_ids":[655],"gold_doc_ids":[15],"note":"#655 'employs a dynamic splitting strategy based on 2-means clustering and a purity threshold'。"}
+{"id":"s28","type":"single_hop","question":"噪声干扰下 GB-CLFSVM 和 CLFSVM 的准确率各自下降了多少？","gold_chunk_ids":[675],"gold_doc_ids":[15],"note":"#675 'dropped from 91.67% to 77.78% (a 13.89% decrease), whereas CLFSVM's plummeted from 86.46% to 5.07% (an 81.39% decrease)'。正文主语需结合上下文，属较难的单跳。"}
+{"id":"s29","type":"single_hop","question":"SSH 隧道断掉会有什么表现？","gold_chunk_ids":[10,760],"gold_doc_ids":[5,19],"note":"#10 '表现是所有数据库操作一起超时，而不是某一个接口报错'；#760 'SSH 隧道断了只会超时，不会报错'。两份运维文档都记了同一条，任一命中即可。"}
+{"id":"s30","type":"single_hop","question":"worker 启动时的 preflight 会拒绝哪两种配置？","gold_chunk_ids":[11],"gold_doc_ids":[5],"note":"#11 'REPOSITORY_BACKEND 不是 postgres，或者 MILVUS_URI 指向 Milvus Lite 的本地目录'。"}
+
+{"id":"m01","type":"multi_hop","question":"知识库里有哪几篇论文用到了粒度球（granular ball）方法？","gold_chunk_ids":[32,171,588,655],"gold_doc_ids":[6,8,14,15],"note":"GBSVM、Pin-GBTSVM、GBFSVM、GB-CLFSVM 四篇。每篇各取一个代表块，命中任意一篇的部分即算部分召回。"}
+{"id":"m02","type":"multi_hop","question":"对比 GBSVM、ISFFSVM 和 SFFSVM 的时间复杂度，哪个更低？","gold_chunk_ids":[33,114,323],"gold_doc_ids":[6,7,10],"note":"GBSVM≈O(N)（#32/33）、ISFFSVM=O(N)（#114）、SFFSVM=O(dN²)（#323）。三者都需检索到才能比较。"}
+{"id":"m03","type":"multi_hop","question":"哪些论文是专门处理类别不平衡问题的？","gold_chunk_ids":[289,213,397],"gold_doc_ids":[7,9,10,11],"note":"SFFSVM(#289 'class imbalance')、ISFFSVM(在其基础上)、RD-IFTSVM(#213 'imbalanced benchmark datasets')、CKA-FSVM(#397 隶属度)。"}
+{"id":"m04","type":"multi_hop","question":"哪几篇论文把课程学习（curriculum learning）用在了模糊支持向量机上？","gold_chunk_ids":[447,649],"gold_doc_ids":[12,15],"note":"Curriculum Learning-Based FSVM（doc12）与 GB-CLFSVM（doc15，#649 'CLFSVM defines a new slack variable'）。后者是前者的改进。"}
+{"id":"m05","type":"multi_hop","question":"知识库里有哪几篇论文是在 FSVM 基础上做改进的？","gold_chunk_ids":[97,289,447],"gold_doc_ids":[7,10,11,12],"note":"ISFFSVM（改 SFFSVM）、SFFSVM 本身、CKA-FSVM、CLFSVM。属于开放式列举题，gold 取代表块。"}
+{"id":"m06","type":"multi_hop","question":"怎么区分“SSH 隧道断了”和“worker 起不来”这两类故障？","gold_chunk_ids":[10,11],"gold_doc_ids":[5],"note":"#10 隧道断=所有数据库操作一起超时；#11 worker 起不来=preflight 拒绝配置。两块都在故障排查文档里，需同时取到。"}
+{"id":"m07","type":"multi_hop","question":"哪几篇论文用 DBSCAN 来做样本筛选？","gold_chunk_ids":[461,648],"gold_doc_ids":[12,15],"note":"doc12（ADBSCAN 确定 minPts，见 #459-465）与 doc15（curriculum learning 阶段用 DBSCAN 选核心样本，#648/649）。"}
+{"id":"m08","type":"multi_hop","question":"粒度球和模糊集是怎么结合起来的？","gold_chunk_ids":[584,588,655],"gold_doc_ids":[14,15],"note":"GBFSVM 提出 fuzzy granular-ball 计算框架（#584/#588 纯度→隶属度），GB-CLFSVM 用纯度阈值驱动的动态分裂（#655）。"}
+{"id":"m09","type":"multi_hop","question":"这几篇论文里有没有同一个课题组发表的多篇工作？","gold_chunk_ids":[14,561],"gold_doc_ids":[6,14],"note":"GBSVM(#14 'Shuyin Xia, Xiaoyu Lian, Guoyin Wang, Xinbo Gao') 与 GBFSVM(#561 同一批作者) 同属一个课题组。典型的“查某团队还发过什么”场景。"}
+{"id":"m10","type":"multi_hop","question":"哪几篇论文重新定义了松弛变量（slack variable）的用法？","gold_chunk_ids":[453,649],"gold_doc_ids":[12,15],"note":"doc12 的 Novel slack variable-based FSVM（#453 一带）与 doc15 的 CLFSVM（#649 'defines a new slack variable'）。"}
+
+{"id":"u01","type":"unanswerable","question":"知识库里有没有讲 Transformer 自注意力机制的论文？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"语料是 9 篇 SVM 变体论文，没有任何一篇讲注意力机制。真值应为拒答。"}
+{"id":"u02","type":"unanswerable","question":"有没有论文讨论联邦学习下的隐私保护？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"语料无联邦学习内容。"}
+{"id":"u03","type":"unanswerable","question":"知识库里有没有 BERT 微调相关的资料？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"无预训练语言模型内容。"}
+{"id":"u04","type":"unanswerable","question":"有没有文档说明 Milvus 的索引类型（IVF_FLAT 和 HNSW）该怎么选？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"三份运维文档只讲了隧道、启动顺序、worker 拒绝的配置，没有索引选型。运维域的“知识库里没有”。"}
+{"id":"u05","type":"unanswerable","question":"有没有论文提到在 GPU 上加速 SVM 训练的方法？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"论文讲的是算法层面降复杂度（粒度球、pinball loss），没有 CUDA/GPU 实现层面的内容。"}
+{"id":"u06","type":"unanswerable","question":"知识库里有没有推荐系统召回排序相关的内容？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"无推荐系统内容。注意本项目自身有“召回/排序”，但语料里没有 —— 这正是容易误召回的一类问题。"}
+{"id":"u07","type":"unanswerable","question":"有没有论文讨论图神经网络？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"无 GNN 内容。"}
+{"id":"u08","type":"unanswerable","question":"知识库里有没有 Docker Swarm 集群部署的说明？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"只有 SSH 隧道与启动顺序，无容器编排。"}
+{"id":"u09","type":"unanswerable","question":"有没有论文做过时间序列异常检测？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"语料全部是静态二分类/不平衡分类，无时序任务。"}
+{"id":"u10","type":"unanswerable","question":"知识库里有没有讲多模态大模型视觉编码器的论文？","gold_chunk_ids":[],"gold_doc_ids":[],"note":"无多模态内容。"}

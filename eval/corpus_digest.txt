@@ -1,0 +1,782 @@
+
+======================================================================
+[doc 4] 手册A  (chunk_id 8 起)
+======================================================================
+
+  ── 部署手册 A > 依赖顺序
+    #8     idx=0    p0-0     28t  Postgres 必须先于 worker 就绪，否则 worker 的 preflight 会直接拒绝启动。
+
+  ── 部署手册 A > 常见故障
+    #9     idx=1    p0-0     35t  向量库连不上时，先确认隧道是否还活着 —— SSH 隧道断了不会报错，只会超时。
+
+======================================================================
+[doc 5] 故障排查  (chunk_id 10 起)
+======================================================================
+
+  ── 故障排查速查 > SSH 隧道断了
+    #10    idx=0    p0-0     52t  表现是所有数据库操作一起超时，而不是某一个接口报错。 先 `ssh -N -L 5432:... ragvm` 确认隧道进程还在。
+
+  ── 故障排查速查 > worker 拒绝启动
+    #11    idx=1    p0-0     63t  preflight 会直接拒绝两种配置：REPOSITORY_BACKEND 不是 postgres， 或者 MILVUS_URI 指向 Milvus Lite 的本地目录（文件锁，一个目录只能一个进程）。
+
+  ── 故障排查速查 > 上传后一直 queued
+    #12    idx=2    p0-0     22t  说明没有 worker 在消费队列。看 worker 进程还在不在。
+
+======================================================================
+[doc 6] GBSVM_An_Efficient_and_Robust_Support_Vector_Machine_Framework_via_Granular-Ball_Computing  (chunk_id 13 起)
+======================================================================
+
+  ── (无章节)
+    #13    idx=0    p1-1     32t  IEEETRANSACTIONSONNEURALNETWORKSANDLEARNINGSYSTEMS,VOL.36,NO.5,MAY2025 9253
+
+  ── Machine Framework via Granular-Ball Computing
+    #14    idx=1    p1-1    372t  Shuyin Xia , Member, IEEE, Xiaoyu Lian, Guoyin Wang , Senior Member, IEEE, Xinbo Gao , Jiancu Chen , and Xiaol
+    #15    idx=2    p1-1    382t  and derive its dual model. Furthermore, a particle swarm opti- computing. mization (PSO) algorithm is designed
+    #16    idx=3    p1-1    349t  including the center and radius in any dimension. Therefore, computing, support vector machine (SVM). it is su
+    #17    idx=4    p1-1    369t  in 1996, more and more scholars began to study information representation is the finest granularity of a point
+    #18    idx=5    p1-1    362t  of China under Grant 62222601, Grant 62176033, Grant 62221005, and in comparison with a data point, a granular
+    #19    idx=6    p1-2    374t  acteristics can be described in Fig. 1, in the cognitive law of University of Posts and Telecommunications, Ch
+    #20    idx=7    p2-2    372t  Fig.2. Comparisonof(a)existingclassifiersand(b)granular-ballclassifiers. Fig.1. Humancognition“globalprecedenc
+    #21    idx=8    p2-2    379t  recognition is based on semantic “point sets” such as “lines,” as input, which greatly improves and greatly en
+    #22    idx=9    p2-2    371t  learningmechanismtobuildfuzzyrule-basedsystemsthrough the construction of sparse least-squares SVMs (LS-SVMs).
+    #23    idx=10   p2-2    383t  input model, the existing version has three disadvantages: ability of generalized eigenvalue proximal SVM [17]
+    #24    idx=11   p2-2    372t  the influence of noise and outliers. Ye et al. [22] intro- corrected it in the proposed model in this article.
+    #25    idx=12   p2-3    380t  calculation speed. Furthermore, SVM has been applied to datasets demonstrate better performance of GBSVM in cl
+    #26    idx=13   p3-3    370t  i=1 i i can further be eliminated using also adaptive rules [33]; k denote a sample in the granular ball and t
+    #27    idx=14   p3-3    366t  generatedwiththeaveragedistancecanfitthedatadistribution cases;inmostotherproblems,suchasgranular-ballclusteri
+    #28    idx=15   p3-3    358t  1,2,...,m) is the granular ball generated on the dataset D, generation is shown in Fig. 3. To simulate the “gl
+    #29    idx=16   p3-3    363t  inaset.Thefunction f meanstheoriginaltraditionallearning consistency with the data distribution of the origina
+    #30    idx=17   p3-3    369t  term m represents the number of granular balls. The fewer increases, and the decision boundary becomes clear u
+    #31    idx=18   p4-4    363t  9256 IEEETRANSACTIONSONNEURALNETWORKSANDLEARNINGSYSTEMS,VOL.36,NO.5,MAY2025 Fig.5. SchematicsofthetraditionalS
+    #32    idx=19   p4-4    358t  as a small constant, the time complexity of granular-ball widely acclaimed as a versatile classifier [13]. The
+    #33    idx=20   p4-4    360t  classifier is reduced to close to O(N), which is very low. respectively. In the linear separable case, the sep
+    #34    idx=21   p4-4    360t  To address the low efficiency and hyperparameter (i.e., the The dual problem of (2) is neighborhood radius) op
+    #35    idx=22   p4-5    377t  rough set [35]. GBRS exhibits a higher accuracy than both into (2) for addressing the inseparable classificati
+    #36    idx=23   p5-5    376t  we have developed a method for generating granular balls in kernel space and have designed a nonlinear GBSVM m
+    #37    idx=24   p5-5    383t  s.t. X n α i y i =0, s fo u l p l p ow or s t : planes, i.e., l 1 and l 2 shown in Fig. 5, are denoted as i=1 
+    #38    idx=25   p5-5    366t  the distance between the support plane and each granular ball ω·(c −x ) i i =r . (12) should be not less than 
+    #39    idx=26   p5-6    375t  m However,(12)canonlyobtainaplanethatistangentwitha 1 X ω m , i b n 2 ∥ω∥2+C δ i , granular ball, and the cons
+    #40    idx=27   p6-6    381t  l : ω·x +b=−1,y =−1. (16) 2 i i Equations (15) and (16) can be transformed to be ω·x +b= y (17) i i ⇒ω·x = y −
+    #41    idx=28   p6-6    380t  corresponding support plane must not be less than the radius of the corresponding support granular balls, so t
+    #42    idx=29   p6-6    365t  l′ : ω·c −∥ω∥r +b=1,y =+1 (25) 1 i i i B. Linear Granular-Ball Support Vector Machine l′ : ω·c +∥ω∥r +b=−1,y =
+    #43    idx=30   p6-7    367t  a) Original model of the separable GBSVM: As that ((c ,−r )−(c ,r ))·(w,||w||) = 1 1 2 2 shown in Fig. 5(a), w
+    #44    idx=31   p7-7    383t  ∥ω∥ ω= i=1 i i i i=1 i i i=1 i i i ∥Pm α yc ∥ In order to get the optimal decision plane, margin must be i=1 i
+    #45    idx=32   p7-7    370t  i i i i i i i i quadraticprogrammingmodelofGBSVM,whichisexpressed 2 i=1 i=1 i=1 i=1 as (32). Notably, when the
+    #46    idx=33   p7-7    377t  Let L(ω,b,α) on ω and b partial derivatives equal to 0, and s.t. α i y i =0, i =1,2,... (43) we get i=1 where 
+    #47    idx=34   p7-8    378t  X α yc = ∥ω∥+ X αr . (37) constraintsinmostcases,soweintroducetheslackvariableξ i i i i i i=1 i=1 and penalty 
+    #48    idx=35   p8-8    384t  constraint, the Lagrange function of (45) can be expressed as the number of sample points. The maximum time co
+    #49    idx=36   p8-8    384t  i=1 i=1 function is used to perform a dimension-raising operation m ∂L X and locate the hyperplane in a higher
+    #50    idx=37   p8-8    369t  i=1 where A=Pm α yc and B =Pm αr . i=1 i i i i=1 i i It is a challenge to calculate the granular balls in high
+    #51    idx=38   p8-8    373t  problems of separable SVM and inseparable SVM in linear function φ(x) is unknown, so the split process of gran
+    #52    idx=39   p9-9    383t  XIAetal.:GBSVM:ANEFFICIENTANDROBUSTSVMFRAMEWORKVIAGRANULAR-BALLCOMPUTING 9261 v u m !2 m m + u t X α yc′ ∗ X α
+    #53    idx=40   p9-9    367t  , m a l u l l c l i o e r d r e w sp it o h n d a e c d o t e o ffi t h o ie s n e t d b a e t a t w p e o e i
+    #54    idx=41   p9-9    366t  wherek denotesthenumberofsamplesinagranularball.The multiplied with the inverse of that coefficient. As a resu
+    #55    idx=42   p9-9    375t  The third term of (52) can be simplified as follows: P yi =+1 α i y i v Although the PSO algorithm can directl
+    #56    idx=43   p9-9    370t  i=1 j=1 i=1 j=1 v of features in the sample points, which is more difficult to u m !2 m m + u t X α yc′ ∗ X αr
+    #57    idx=44   p9-10   377t  i=1 j=1 i=1 j=1 function contains the norm term ∥A∥, which cannot extract 9262 IEEETRANSACTIONSONNEURALNETWORK
+    #58    idx=45   p10-10   379t  Since ∥w∥ ≥ 0 , then ∥A∥ ≥ B, we have the following i=3 inequality: X m −λ α αr r −α −α . (67) 2 i 2 i 1 2 m m
+    #59    idx=46   p10-10   380t  as the approximate functions: + (ζ −α 2 y 2 )α i y i c 1 Tc i + α 2 y 2 α i y i c 2 Tc i i=3 i=3 m λ λ 1(cid:0
+    #60    idx=47   p10-10   383t  2∥A∥−B 2∥Pm αt−1yc ∥−Pm αt−1r 2 1 1 2 1 2 2 i i 1 i 2 i i 2 i λt = = i=1 i i i i=1 i i. (65) i=3 i=3 B Pm αt−1
+    #61    idx=48   p10-11   383t  m 2 cTc +cTc −2 cTc −λr2−λr2+2λy y r r 1(cid:0)∥A∥2−λB2(cid:1)− X 1 1 2 2 1 2 1 2 1 2 1 2 α i (72) i=1 1X m X 
+    #62    idx=49   p11-11   373t  2 number of granular balls in GB′.  H, αnew,unc > H; 2: Take the initial vector α = 0. The optimization objec
+    #63    idx=50   p11-11   383t  L =max (cid:0) 0,αold+αold−C (cid:1),H =min (cid:0) C,αold+αold(cid:1). 6: Go to STEP 4 else 2 1 2 1 7: The op
+    #64    idx=51   p11-11   366t  th eo b je c tiv Pm αt−1r′ function can be approximated according to (66) i=1 i i In summary, the kernel funct
+    #65    idx=52   p11-11   381t  αnew,unc′ to occur, which is not conducive to classification. Therefore, 2 itshouldbenotedthatremovingtheoverl
+    #66    idx=53   p11-12   383t  1 2 1 i 2 i 1 2 performance of robustness and efficiency. The relative density i=3 i=3 (RD) method [44] is int
+    #67    idx=54   p12-12   365t  iment between SVM and GBSVM within the RD framework, dataset.(a)and(c)Noise=0andpuritythreshold=1.(b)and(d)Noi
+    #68    idx=55   p12-12   377t  number pop of particles is 400; the maximum number of However, GBSVM shows better robustness than SVM. The ite
+    #69    idx=56   p12-12   363t  the final classification accuracy. The experimental results of experimentalresultscannotbeobtainedwithinoneday
+    #70    idx=57   p12-12   364t  plane. The first two dimensions of the dataset Iris are cho- someresultsexhibitimprovedprecisionasthenoiseleve
+    #71    idx=58   p12-13   359t  model can distinguish the two class data. balls in kernel space is removed, the number of granular balls In th
+    #72    idx=59   p13-14   383t  it greatly improves the classification accuracy. In short, the as shown in the Supplementary Material. The res
+    #73    idx=60   p14-14   384t  mark datasets demonstrate that GBSVM performs better than computing, which is also scalable. SVM both in robus
+    #74    idx=61   p14-14   375t  advancedmodels,whicharewidelyusedinthefieldofpattern improve the classification accuracy in the case of high n
+    #75    idx=62   p14-14   364t  puritythresholdisoptimizedintheinterval[0.7,1]withastep dedicated guidance, which has made great contributions
+    #76    idx=63   p14-14   365t  [3] X. Zhang, H. Gou, Z. Lv, and D. Miao, “Double-quantitative distance search process for the PSO method; in 
+    #77    idx=64   p14-15   327t  [6] S.Hu, D.Miao,andW. Pedrycz,“Multigranularity basedlabelprop- differentgranularitiesofgranularballsastheinp
+    #78    idx=65   p15-15   369t  [8] S. Xia, Y. Liu, X. Ding, G. Wang, H. Yu, and Y. Luo, “Granular ball [29] Y. Xue, Y. Shao, S. Xia, and G. W
+    #79    idx=66   p15-15   373t  [10] H. Guo, L. Wang, X. Liu, and W. Pedrycz, “Trend-based granular algorithm,”2023,arXiv:2303.12807. represen
+    #80    idx=67   p15-15   381t  efficient,robust,andinterpretableadaptivemulti-granularityrepresenta- [34] S.Xia,H.Zhang,W.Li,G.Wang,E.Giem,an
+    #81    idx=68   p15-15   372t  pp.627–643,Jun.2015. [36] S. Xia, S. Zheng, G. Wang, X. Gao, and B. Wang, “Granular ball sampling for noisy la
+    #82    idx=69   p15-15   379t  [17] G. Fung and O. L. Mangasarian, “Proximal support vector machine A multi-granularity neighbor relationship
+    #83    idx=70   p15-15   367t  [40] S.Xia,Z.Xiong,Y.Luo,L.Dong,andC.Xing,“Relativedensitybased Dec.2019. support vector machine,” Neurocomput
+    #84    idx=71   p15-15   360t  [22] Q.Ye,P.Huang,Z.Zhang,Y.Zheng,L.Fu,andW.Yang,“Multiview Jun.1998. learning with robust double-sided twin S
+    #85    idx=72   p15-15   338t  learningviaaxiomaticfuzzysettheoryandSVM,”IEEETrans.Cybern., [45] B.Xiaoetal.,“Sampled-datacontrolthroughmodel
+    #86    idx=73   p15-15   341t  vol.33,pp.3781–3798,Aug.2021. [47] F.M.A.HossainandY.Zhang,“MsFireD-net:Alightweightandeffi- [27] C.Zhu,D.Miao
+
+======================================================================
+[doc 7] ISFFSVM  (chunk_id 87 起)
+======================================================================
+
+  ── (无章节)
+    #87    idx=0    p1-1     33t  3112 IEEETRANSACTIONSONEMERGINGTOPICSINCOMPUTATIONALINTELLIGENCE,VOL.9,NO.4,AUGUST2025
+
+  ── Slack-Factor Fuzzy SVM Approach
+    #88    idx=1    p1-1    370t  M.Tanveer ,SeniorMember,IEEE,AnushkaTiwari ,MushirAkhtar ,GraduateStudentMember,IEEE, andChin-TengLin ,Fellow,
+    #89    idx=2    p1-1    377t  FSVMsbyusingslackfactorstoadjustfuzzymembershipsbased onmisclassificationlikelihood,therebyrectifyingmisclassi
+    #90    idx=3    p1-1    363t  areassignedlowerfuzzymemberships,whichenhancesthemodel’s byminimizingthesquarednormoftheweightvector,effective
+    #91    idx=4    p1-1    358t  oneclasssignificantlyoutnumberstheother,astheytendtofavor severeclassdisparity. the majority class, treating m
+    #92    idx=5    p1-1    371t  Chin-Teng Lin was supported in part by the Australian Research Council such as oversampling [14], undersamplin
+    #93    idx=6    p1-1    383t  453552, India (e-mail: mtanveer@iiti.ac.in; anushkatiwari9911@gmail.com; strategies [19], and scaling kernel-b
+    #94    idx=7    p1-2    374t  DigitalObjectIdentifier10.1109/TETCI.2024.3524718 itremainssensitivetonoiseandoutliers. 2471-285X©2025IEEE.All
+    #95    idx=8    p2-2    348t  anomalies on the overall classification performance. The FM functioneffectivelyreducestheinfluenceofdatapoints
+    #96    idx=9    p2-2    350t  [24].ToavoidmisclassifyingA,thehyperplaneispushedleft, valuesbetweenaand2areassignedlowermembershipvalues. ens
+    #97    idx=10   p2-2    343t  incorporating slack factor values in the SFFSVM model is to propose an improved slack-factor-based fuzzy suppo
+    #98    idx=11   p2-3    379t  by diminishing the influence of less reliable data points. The of minority samples. Moreover, Fig. 3 demonstra
+    #99    idx=12   p3-3    375t  (IR)hasbeenintroducedtodealwithclassimbalanceproblems. Theminorityclasssamples’misclassificationcostisIRinthe 
+    #100   idx=13   p3-3    376t  dots)(i.e.,IR=5).(b)DecisionsurfaceofISFFSVMonthesamedataset. noiseandoutliersasitcannotdistinguishthemproperl
+    #101   idx=14   p3-3    381t  min (cid:3)w(cid:3)2+ζ ξ 2) The introduction of the location parameter provides a w,b,ξ 2 i i i=1 significanta
+    #102   idx=15   p3-4    370t  (AUC-PR), effectively addressing class imbalance chal- lenges. ξ i =max(0,1−y i (wTx i +b)). TANVEERetal.:ENHA
+    #103   idx=16   p4-4    350t  i i i by FM values. To overcome this issue, slack-factor-based FM F = {x |x ∈X ∩(ξ ≥1)}, functionhasbeenpropos
+    #104   idx=17   p4-4    374t  and a decision hyperplane derived by instructing DEC on X, IntheproposedISFFSVMmodel,weintroduceanewparam- res
+    #105   idx=18   p4-4    377t  ples: B,andC willbeassignedamembershipvalueofone,whereas (cid:3) ψ x + i = 2 0 / , (eμξ i +1), x x i i ∈ ∈ T F
+    #106   idx=19   p4-4    381t  ples: thereisaveryhighchancethatminoritysamplesDandF will (cid:3) e−μξ i, x ∈{x|x∈F−∩ξ(x)≥2}, bemisclassifiedw
+    #107   idx=20   p4-5    362t  ψ+ξ +ζ− w,b,ξ 2 x i i x i i i x∈X+ x∈X− ξ i ≥0,i=1,2,...,N. (7) s.t. y i (wTx i +b)≥1−ξ i ,i=1,2,...,N, FMvalu
+    #108   idx=21   p5-5    366t  Algorithm1:ImprovedSlack-Factor-BasedFuzzySupport aspects that underpin the robustness and effectiveness of th
+    #109   idx=22   p5-5    366t  Impact on hyperplane adjustment: By ensuring that only 8: else 9: ifξ i <1putx iintoT−,otherwiseintoF−. majori
+    #110   idx=23   p5-5    378t  |(cid:2)X+| |(cid:2)X−| min (cid:3)w(cid:3)2+ζ+ ψ+ξ +ζ− ψ−ξ potentiallyleadingtomisclassificationofminoritycla
+    #111   idx=24   p5-5    383t  valuefora.Forinstance,inFig.3(b),thedecisionboundaryis drawnwitha=1.3.Itcanbeseenthatthedecisionboundary B. Er
+    #112   idx=25   p5-5    384t  threshold for assigning an FM value of one to majority class Identification of False Positives (FP): In the IS
+    #113   idx=26   p5-6    370t  icallyfocusingonthestrategicincorporationoftheslackfactor greaterthanorequaltoaareassignedlowerfuzzymem- and l
+    #114   idx=27   p6-6    355t  sified as majority class samples. The ISFFSVM model thesameasinSFFSVM,whichisO(N).Thisarisesfromthe addresses 
+    #115   idx=28   p6-6    167t  valuesreceivehighfuzzymemberships,emphasizingtheir improved performance by optimizing the decision boundary im
+
+  ── Slack-Factor Fuzzy SVM Approach > (cid:2)
+    #116   idx=29   p6-6    344t  ImpactoftheLocationParameter(a):Theintroductionof pared it with the following baseline models: (1) Ensemble- t
+    #117   idx=30   p6-6    366t  critical minority class samples (reducing FN) and avoids SVM) [28]; (4) Oversampling-based category: Polynomia
+    #118   idx=31   p6-6    383t  riorclassificationperformanceacrossvariousimbalanced for all the models is taken the same as given in [24]. Fo
+    #119   idx=32   p6-7    335t  Thecomputationalcomplexityandscalabilityoftheproposed PR), the Matthews correlation coefficient (MCC), and the
+    #120   idx=33   p7-7    361t  PRESENTSTHEAVERAGEF1-SCORES,MCCSCORES,ANDAUC-PRFORTHEPROPOSEDISFFSVMMODELANDBASELINEMODELSONDATASETSWITHLOWIR 
+    #121   idx=34   p7-7    383t  putedas: PR,areprovidedinTablesS.VIII,S.IX,andS.X,respectively, 2×R×P inthesupplementaryfile.TheaverageF1-scor
+    #122   idx=35   p7-7    366t  both false positives and false negatives. Additionally, the pro- Inthissubsection,weprovideadetailedevaluation
+    #123   idx=36   p7-7    351t  metrics. The detailed results for each of the low IR datasets, to achieve superior performance in handling cla
+    #124   idx=37   p7-7    384t  when handling moderate class imbalance. In terms of MCC, menyiposthoctest.Theresultsdemonstratethattheproposed
+    #125   idx=38   p7-8    369t  TableI).Theseresultshighlightthattheintroductionofthelo- sourced from the Center for Biomedical Research Excel
+    #126   idx=39   p8-8    372t  Fig. 4. Sensitivity analysis of the location parameter a for the proposed anF1-scoreof63.67,comparedto62.73obt
+    #127   idx=40   p8-8    376t  factor-basedfuzzysupportvectormachine(ISFFSVM).Inthe than the AUC of 62.76 obtained by the baseline SFFSVM. SF
+    #128   idx=41   p8-8    378t  ples. Extensive experimentation on diverse real-world KEEL Toshowthesensitivityofthelocationparametera,weplott
+    #129   idx=42   p8-8    374t  the F1-score shows moderate fluctuations around the optimal scaledata.Additionally,researcherscouldfocusondeve
+    #130   idx=43   p8-9    340t  Overall, this analysis underscores the critical role of carefully extended matrix norm method for the solution
+    #131   idx=44   p9-9    347t  Alzheimer’sdisease:Areview,”ACMTrans.MultimediaComput.Com- onpolynomialfittingforimbalanceddatasets,”inProc.8t
+    #132   idx=45   p9-9    326t  disease:Approachesandchallenges,”IEEETrans.FuzzySyst.,vol.32, weightedminorityoversamplingtechniqueforimbalanc
+    #133   idx=46   p9-9    345t  Pattern Anal. Mach. Intell., vol. 47, no. 1, pp.149–160, Jan. 2025, [33] G.He,H.Han,andW.Wang,“Anover-sampling
+    #134   idx=47   p9-9    372t  [10] M.Akhtar,M.Tanveer,andM.Arshad,“GL-TSVM:Arobustandsmooth manceofpureaccuracyanditsapplicationinselectivee
+    #135   idx=48   p9-9    348t  cancer using flexible pinball loss support vector machine,” Appl. Soft Comput.,vol.157,2024,Art.no.111454. [13
+    #136   idx=49   p9-9    367t  withoversamplingandundersamplingtechniques:Overviewstudyand mentofMathematics,IndianInstituteofTechnology expe
+    #137   idx=50   p9-9    381t  doi:10.1007/s00521-022-08135-y. diseaseanddementia.HewasonReviewboardsformorethan100scientific [18] N.Thai-Ngh
+    #138   idx=51   p9-9    365t  2015. for IEEE TRANSACTIONS ON NEURAL NETWORKS AND LEARNING SYSTEMS [20] Y.Zhang,P.Fu,W.Liu,andG.Chen,“Imbalan
+    #139   idx=52   p9-9    358t  NeuralNetw.,vol.13,no.2,pp.464–471,Mar.2002. IEEEJOURNALOFBIOMEDICALHEALTHANDINFORMATICS,IEEETRANSAC- [23] R.B
+    #140   idx=53   p9-9    341t  [25] W.W.Ng,S.Xu,J.Zhang,X.Tian,T.Rong,andS.Kwong,“Hashing- specialsessionsinreputedconferencesincludingWCCI,I
+    #141   idx=54   p9-10   371t  sification. Machine learning,” in Proc. Int. Conf. Mach. Learn., 2003, ofIndiaincludingDepartmentofScienceandT
+    #142   idx=55   p10-10   357t  icsfromtheIndianInstituteofTechnologyIndore, master’sandPh.D.degreesinelectricalengineering Madhya Pradesh, In
+    #143   idx=56   p10-10   374t  andParameterLearning(WorldScientific).Hehasauthoredorcoauthoredmore than485journalpapers,includingmorethan230I
+    #144   idx=57   p10-10   354t  2020, respectively. He is currently working toward Cybernetics (SMC) Society during 2003–2005, IEEE Computatio
+    #145   idx=58   p10-10    37t  emphasisonapplicationsinthebiomedicaldomain. GeneralChairofthe2011IEEEInternationalConferenceonFuzzySystems.
+
+======================================================================
+[doc 8] Pin-GBTSVM  (chunk_id 146 起)
+======================================================================
+
+  ── (无章节)
+    #146   idx=0    p1-1     29t  IEEETRANSACTIONSONCOMPUTATIONALSOCIALSYSTEMS,VOL.12,NO.5,OCTOBER2025 3891
+
+  ── With Pinball Loss Function
+    #147   idx=1    p1-1    351t  A. Quadir and M. Tanveer , Senior Member, IEEE Abstract—Alzheimer’s disease (AD) and Schizophrenia (SCZ) I. IN
+    #148   idx=2    p1-1    379t  in susceptibility to noise and instability; 2) TSVM encounters causes brain structural and functional changes.
+    #149   idx=3    p1-1    353t  proposed Pin-GBTSVM persists in facing challenges associated challenges due to the presence of multiple comorb
+    #150   idx=4    p1-1    384t  on University of California Irvine (UCI), knowledge extraction media platforms presents new opportunities for 
+    #151   idx=5    p1-1    382t  loss, quantile distance, twin support vector machine (TSVM). on multimedia data provides a novel approach for 
+    #152   idx=6    p1-2    360t  feature extraction [15]. The SVM exhibits superior perfor- stitute of Technology Indore, Simrol, Indore 453552
+    #153   idx=7    p2-2    352t  (GEPSVM),toalleviatethecomplexityassociatedwithSVM. datasets into different granular ball sizes. As emphasized
+    #154   idx=8    p2-2    380t  recent years, various variants of TSVM have been introduced To effectively address issues related to noise and
+    #155   idx=9    p2-2    350t  distances, with the goal of reducing sensitivity to noise and granularity in the representation. Inspired by t
+    #156   idx=10   p2-2    363t  stratesgreaterstabilityinhandlingoutliersandresamplingchal- a significant reduction in the number of training 
+    #157   idx=11   p2-2    340t  for emulating human cognition in addressing intricate prob- for large-scale datasets and lack the SRM principl
+    #158   idx=12   p2-2    361t  [25]. Conversely, finer granularity in granular computing cor- (Pin-GBTSVM).Pin-GBTSVMutilizesgranularballsas 
+    #159   idx=13   p2-3    369t  playsapivotalroleinitsscalabilityandefficiency.Thisstands 3) We propose a novel large-scale Pin-GBTSVM (Pin- i
+    #160   idx=14   p3-3    376t  as well as large-scale NDC [38] datasets ranging from using 10k to 5m. Numerical experiments and statistical a
+    #161   idx=15   p3-3    359t  Section V. In Section VI, we discuss the experimental results andconductstatisticalanalysis.Theconclusionandav
+    #162   idx=16   p3-3    349t  be the training dataset where t ∈{+1,−1} represents the la- and the total number of data points inside the gra
+    #163   idx=17   p3-3    374t  generated granular balls, where c signifies the center, r indi- thepercentageofsampleswithinagranularballthats
+    #164   idx=18   p3-4    355t  A. Granular Ball Computing min θ × (cid:2) +θ ×p 1 p |GB | 2 i=1 i Granularballcomputingisasignificantdataproc
+    #165   idx=19   p4-4    372t  granularballsthatencompasseitherthecompletesamplespace anidentitymatrixofsuitabledimensions.Thus orafractionof
+    #166   idx=20   p4-4    377t  attributedtotheutilizationofthepinballlossfunction.Theop- Likewise, theWolfedualfor(3)can beobtained asfollows
+    #167   idx=21   p4-4    379t  1 2 1 2 1 1 1 tionofanewinputdatapointxintoeitherthe+1or−1class ζ (C w +e b )− 1 ≤e +R . (3) can bedetermined 
+    #168   idx=22   p4-4    380t  for solving the QPPs. Additionally, Pin-GBTSVM lacks the obtain: SRMprinciple.ToadaptourproposedPin-GBTSVMmode
+    #169   idx=23   p4-5    376t  Combining (5)and(6)leads to tion accuracy. The linear optimization problem corresponding (cid:5) (cid:6) (cid:
+    #170   idx=24   p5-5    359t  min d ((cid:3)w (cid:3)2+b2)+ ηTη +d eTζ plexity of Pin-GTSVM [22] is similar to TSVM. We consider w2,b2,η2,ξ1
+    #171   idx=25   p5-5    382t  priatedimensions.Thedualformofequation(16)ispresented complexityofgeneratinggranularballsis(orlessthan)O(2nt).
+    #172   idx=26   p5-5    364t  Here, the matrix E comprises entirely of ones, whereas I de- cations, our Pin-GBTSVM model offers enhanced eff
+    #173   idx=27   p5-5    354t  and w 2 and b 2 canbegiven by i.e., Pin-GBTSVM and Pin-LGBTSVM, along with the base- (cid:5) (cid:6) (cid:5) (
+    #174   idx=28   p5-5    364t  1 d 1 1 2 1 1 d 1 1 2 1 search Excellence (COBRE). In the Supplementary material, 3 3 we performseveral sensit
+    #175   idx=29   p5-6    380t  tarymaterial. insubsection S.V.AoftheSupplementary material. 3896 IEEETRANSACTIONSONCOMPUTATIONALSOCIALSYSTEMS
+    #176   idx=30   p6-6    383t  assessment is contingent on its performance across individ- 5: Split GB i into GB i1 and GB i2 , using 2-means
+    #177   idx=31   p6-6    361t  sample inGB i . (cid:2) The average rank of the proposed Pin-GBTSVM and Pin- 10: y Cal o c f ul G at B e t , h
+    #178   idx=32   p6-6    348t  15: Gotostep3(forfurthersplitting). parison tobaseline models. Now, weproceed withconducting 16: end if. stati
+    #179   idx=33   p6-6    346t  19: Using (11) and (14), find optimal values of w 1 , b 1 , w 2 , givenbyχ2 F =(12N/t(t+1)) j R j 2−(t(t+1)2/4
+    #180   idx=34   p6-6    349t  tailingacomparisonbetweentheproposedPin-GBTSVM,and utilize the Nemenyi post hoc test to investigate the pairwi
+    #181   idx=35   p6-6    380t  a wide spectrum of scenarios, incorporating both linear and different if there is a gap equal to or greater th
+    #182   idx=36   p6-7    366t  erage ACC of baseline SVM, GBSVM, TSVM, Pin-GTSVM, tions from SVM, GBSVM, TSVM, and Wave-TSVM except QUADIRAND
+    #183   idx=37   p7-7    369t  20% 4.21 5.61 4.24 3.88 4.33 2.79 2.94 †representstheproposedmodels. Theboldfaceanditalicsindicatethebestandse
+    #184   idx=38   p7-7    364t  and Wave-TSVM intermsofaverage rank. noisepointsassociatedwithminoritylabelswithinthegranular The win-tie-loss
+    #185   idx=39   p7-7    373t  SCZ is a debilitating mental disorder that ranks among the as outlined in Section VI-A, introducing label nois
+    #186   idx=40   p7-7    379t  linear kernel are displayed in Table I, across varying percent- of SCZ. As an application, we employed the pro
+    #187   idx=41   p7-8    364t  models with linear kernel. The average ACC of the proposed scans underwent parcellation into white matter (WM)
+    #188   idx=42   p8-8    357t  (ACC(%),Seny.) (ACC(%),Seny.) (ACC(%),Seny.) (ACC(%),Seny.) (ACC(%),Seny.) (ACC(%),Seny.) (ACC(%),Seny.) (Spey
+    #189   idx=43   p8-8    345t  PERFORMANCECOMPARISONOFTHEPROPOSEDMODELSAGAINSTBASELINEMODELSONTHEADNIDATASETS Dataset SVM[11] GBSVM[34] TSVM[
+    #190   idx=44   p8-8    378t  CN_versus_MCI (58.51,85.96) (66.44,80.7) (64.36,73.68) (66.94,84.21) (65.89,64.91) (65.74,73.68) (67.55,80.7) 
+    #191   idx=45   p8-8    364t  skull,scalp,andaircavities.Usingthehigh-dimensionaldiffeo- with mild cognitive impairment (MCI). Notably, not 
+    #192   idx=46   p8-8    361t  tionoftheproposedPin-GBTSVMandPin-LGBTSVMmod- MichaelW.Weinerin2003,isfocusedoninvestigatingarange els, we ass
+    #193   idx=47   p8-8    345t  tivity and precision of the proposed Pin-GBTSVM and Pin- ADdiagnosis,comparingtheproposedPin-GBTSVMandPin- LGB
+    #194   idx=48   p8-9    350t  Pin-LGBTSVM secured the first position and Pin-GBTSVM GBSVM, TSVM, and Pin-GTSVM, exhibited lower average secu
+    #195   idx=49   p9-9    369t  LGBTSVMstandsoutasthemostaccurateclassifier,achieving provided data but did not participate in analysis or wri
+    #196   idx=50   p9-9    361t  Thedatasetutilizedinthisstudywasacquiredwithfinancial Supplementarymaterial.TheperformanceoftheproposedPin- as
+    #197   idx=51   p9-9    370t  neously, it employs the pinball loss function to achieve an CereSpir,Inc.;ElanPharmaceuticals,Inc.;EliLillyand
+    #198   idx=52   p9-9    371t  dresses concerns related to overfitting. To showcase the effec- TakedaPharmaceuticalCompany;PiramalImaging;Pfi
+    #199   idx=53   p9-9    346t  The results indicate that the proposed models are hundred to nation is overseen by the Laboratory for Neuroima
+    #200   idx=54   p9-9    358t  criticalavenueforfutureresearchwouldinvolveadaptingthese comprehensivereviewandfutureresearchdirections,”J.Amb
+    #201   idx=55   p9-10   378t  cohortsusingautomatedlanguageanalysis,”WorldPsychiatry,vol.17, Datausedinpreparationofthisarticlewereobtainedf
+    #202   idx=56   p10-10   348t  vol.89,no.2,pp.695–708,2022. [26] M. Sewwandi, Y. Li, and J. Zhang, “Automated granule discovery in [8] D. M. 
+    #203   idx=57   p10-10   372t  formentalhealthstatusonsocialmedia:Acriticalreview,”NPJDigit. vector machine based on mixed measure,” Neurocom
+    #204   idx=58   p10-10   383t  inremotesensing,”Int.J.RemoteSens.,vol.26,no.5,pp.1007–1011, no.12,pp.153–159,2018. 2005. [31] D.-B. Bu, S. Ba
+    #205   idx=59   p10-10   363t  [15] Y.LiandC.Guan,“Jointfeaturere-extractionandclassificationusing 2024,pp.13727–13735. aniterative semi-supe
+    #206   idx=60   p10-10   362t  machines for pattern classification,” IEEE Trans. Pattern Anal. Mach. mentalanalysisframework,”J.Mult.ValuedLo
+    #207   idx=61   p10-10   366t  vol.53,no.7,pp.4400–4409,Jul.2023. versity of Wisconsin, Madison. [Online]. Available: www.cs.wisc.edu/ [20] K
+    #208   idx=62   p10-10   361t  [22] M. Tanveer, A. Sharma, and P. N. Suganthan, “General twin support J.Mach.Learn.Res.,vol.7,pp.1–30,Jan.200
+    #209   idx=63   p10-10    83t  based manifold clustering algorithms for ultra-scalable data,” Expert machine for classification,” ACM Trans. 
+
+======================================================================
+[doc 9] RD-IFTSVM  (chunk_id 210 起)
+======================================================================
+
+  ── (无章节)
+    #210   idx=0    p1-1     26t  IEEETRANSACTIONSONFUZZYSYSTEMS,VOL.33,NO.10,OCTOBER2025 3795
+
+  ── Imbalance Learning
+    #211   idx=1    p1-1    368t  YashArora ,Member,IEEE,S.K.Gupta ,andShuaiyongLi Abstract—Amajorchallengeinmachinelearningistheaccurate emerge
+    #212   idx=2    p1-1    348t  method utilizes a k-nearest neighbor-based probability density modelcomplexityandgeneralizationerror,makingitr
+    #213   idx=3    p1-1    364t  over 30 imbalanced benchmark datasets, employing linear and twinsupportvectormachines(TSVM)[8].TSVMstreamlines
+    #214   idx=4    p1-1    379t  Toresolvethisissue,LinandWang[10]introducedfuzzySVM Index Terms—Intuitionistic fuzzy set (IFS), nonmembership 
+    #215   idx=5    p1-1    372t  generalizes traditional fuzzy sets by considering both mem- publication3September2025;dateofcurrentversion8Oct
+    #216   idx=6    p1-2    351t  PostsandTelecommunications, Chongqing400065,China(e-mail:lishuaiy- ong@cqupt.edu.cn). the least squares approa
+    #217   idx=7    p2-2    355t  enhancementimprovesthemodel’sgeneralizationperformance, manyoftheseapproaches[20],[23]sufferfromcomputational 
+    #218   idx=8    p2-2    367t  lems, thereby extending the IFS applicability beyond binary outliers.HazarikaandGupta[25]proposedadensityweigh
+    #219   idx=9    p2-2    351t  addressed using three main approaches [16]: Data preprocess- distinctionbetweensupportvectorsandoutliers.Ingen
+    #220   idx=10   p2-2    362t  anced datasets without altering the original data distribution. values [24], [28] often misclassify valid samp
+    #221   idx=11   p2-2    338t  sufferfromincreasedcomplexityanddifficultyinselectingthe presence of noise and outliers. The proposed approach
+    #222   idx=12   p2-2    344t  traininginstance.Guptaetal.[20]proposedtheentropy-based assignsahighermembershipvalueofunitytotheminorityclass
+    #223   idx=13   p2-3    349t  However, this approach is not computationally efficient, as it 2) AnovelRDNM-basedmembershipfunctionisproposed
+    #224   idx=14   p3-3    340t  demonstratetherobustnessoftheproposedRD-IFTSVM assigning weights to samples based on their class distribu- mod
+    #225   idx=15   p3-3    383t  confirm that the proposed technique is significantly dif- min 1 (cid:3)T 2 u 2+e 2 b 2 (cid:3)2 + C 3 D 2(cid:
+    #226   idx=16   p3-3    382t  ingitseffectivenessinclassifyingskinlesiondiseases. function used in this method neglects the global distribut
+    #227   idx=17   p3-3    374t  andoutlinespossibledirectionsforfutureresearch. based score function to effectively suppress the influence of 
+    #228   idx=18   p3-3    371t  the matrix T 1 of order n 1 ×d, and the negative class with n 2 probabilitydensityforeachtrainingpatterncanbec
+    #229   idx=19   p3-4    383t  k,thesmallerthedensityofthepatternx i.Sincenoise distanceD i A. IFTSVMforImbalancedData and outliers tend to r
+    #230   idx=20   p4-4    342t  samples,let j i √ Inthisarticle,wesetk = N s,whereN s representsthetotal Q1 i ={x+ j : (cid:3)ψ(x− i )−ψ(x+ j 
+    #231   idx=21   p4-4    381t  me 1 2 m ) ) b T P e h r r s o e h p i c o p l s a f e s u d s n N c c t e o io n n n t m e , r e fi m r o s b
+    #232   idx=22   p4-4    374t  i i ⎪⎨χ(x i), ifν(x i)=0 2) D is t a n c e s o f t ra in i n g s am p l e s to t h e c la s s ce n te rs [ ] :
+    #233   idx=23   p4-4    372t  ThequantitiesD+(ψ(x+ ))andD−(ψ(x− i ))representthe x i i s n e a re r to i n s t an c e s of o t h e r c la s 
+    #234   idx=24   p4-4    369t  y i =+1 y i =−1 thanχ(x i). (8) 4) Proposed RDNM-Based Membership Function for Im- balanced Data: By integrati
+    #235   idx=25   p4-5    377t  whosedistancesfromtheclasscenterare WiththeExistingNonmembershipFunctions i similartothatofx+ .Next,tocharacte
+    #236   idx=26   p5-5    383t  in a low nonmembership value. Consequently, the proposed scorefunctionin(16)assignsgreaterimportancetothistrai
+    #237   idx=27   p5-5    354t  are the penalty parameters, e 1ande 2 are the column vectors of ones with appropriate dimensions, ξ 1andξ 2 ar
+    #238   idx=28   p5-5    326t  thetotalpatternswithinthe(cid:8)-neighborhoodofx.Itmaybepossi- patterns of its corresponding class. The second
+    #239   idx=29   p5-5    378t  s o e f v x er ( a m l a p r a k t e te d rn a s st f h ro e m blu th e e ci n r e c g le at i i n ve Fi c g l
+    #240   idx=30   p5-6    251t  are numerous other positive patterns positioned at a similar conditionsoftheproblem(20)arestatedasfollows: dis
+    #241   idx=31   p6-6    341t  Byc ∂ ∂ o L ξ m 2 1 b = ini 0 ng ⇒ (2 C 3) 2 a μ n 2 d − (2 λ 4 1 ), − w λ e 2 fu = rth 0 e . rget (25) a v n 
+    #242   idx=32   p6-6    367t  G= (cid:13) T 1 e 1 (cid:14) , H = (cid:13) T 2 e 2 (cid:14) , w 1 = (cid:13) u 1 b 1 (cid:14) t q 1 =− (cid:9
+    #243   idx=33   p6-6    374t  theproblem(21),havingβ 1andβ 2asthenonnegativeLagrange v 1 tK(T 1 ,Tt)v 1 v 2 tK(T 2 ,Tt)v 2 multipliers,weobt
+    #244   idx=34   p6-6    380t  β 1 2 bership and nonmembership degrees, enabling a more s.t. 0≤β 1 ≤μ 1 C 4 (30) robusthandlingofnoiseandoutl
+    #245   idx=35   p6-6    348t  (cid:3)u (cid:3) (cid:3)u (cid:3) globalinformationfromthetrainingdata,therebyreduc- 1 2 ingthelikelihoodofmis
+    #246   idx=36   p6-7    372t  min 1 (cid:3)K (cid:9) T 1 ,Tt (cid:10) v 1+e 1 b 1 (cid:3)2 + C 1 (cid:9) (cid:3)v 1 (cid:3)2 +b2 1 (cid:10) 
+    #247   idx=37   p7-7    241t  whichn 1patternsof+1classandn 2patternsof−1class, Definition 1: Let D ={x 1 ,x 2 ,...,x N } represent a col- h
+    #248   idx=38   p7-7    350t  2: χ D ( e x te i r ) m = in (cid:2) et N j h 1 = s e / 1 D n 1 i k / o D n j k m . embershipfunctionvaluesfor
+    #249   idx=39   p7-7    365t  classtrainingsamplesusing (cid:13) (cid:14) (cid:19) (cid:3)N (cid:19) p (cid:19) (cid:19) (cid:19)N 2 σ i μ(x
+    #250   idx=40   p7-7    384t  5: Evaluatethedualparameters:λ 1 ,β 1 inlinearcaseand lossfunction[32]. α 1 ,γ 1 innonlinearcase. Lemma1: LetH
+    #251   idx=41   p7-7    326t  andfornonlinearcase: E Q[h(x)]≤Eˆ D[h(x)]+Rˆ N(H)+3 ln (2 i N t ) v + b | √| K ( x , T y x . i i ( ) = a r g m
+    #252   idx=42   p7-7    353t  regulatingthemodelcomplexity,particularlyinthepresenceof x(cid:11)→μ(x)(cid:12)u,ψ(x)(cid:13)|(cid:3)u(cid:3)≤
+    #253   idx=43   p7-8    384t  generalizationboundoftheempiricalRademachercomplexity. ingsetdrawnindependentlyfromadistributionQ×{+1,−1}. Let
+    #254   idx=44   p8-8    379t  o f i=1 μ(x i)2K(x i ,x i)+3 + (43) N N is th e n u m be r o f n e ar e s t n e ig h b o rs . C o ns eq uen tl
+    #255   idx=45   p8-8    360t  comparabletothatofCGFTSVM. (cid:3)N h(x i))+Rˆ N(φ◦H) E Q[φ(yh(x))]≤ μ(x i)φ(y i N V. EXPERIMENTANALYSIS i=1 (
+    #256   idx=46   p8-8    377t  2B (cid:3) N dataset.Thestatisticalinformationofthedatasetsispresented Rˆ N(H)≤ N i=1 μ(x i)2K(x i ,x i). (46)
+    #257   idx=47   p8-8    378t  This results in a tighter bound and improved generalization idation data while the other nine folds are used f
+    #258   idx=48   p8-8    347t  class.Tocomputethemembershipdegreeusingrelativedensity, we utilize the Gaussian kernel (K(x 1 ,x 2)=exp{−σ(cid
+    #259   idx=49   p8-9    351t  thepro 1 posedmet 2 hodis(IR 3+1)O(n3 1 )+O(n2 2 )+O(n 2).In AUC= 2 1+ tp+fn − fp+tn ARORAetal.:NOVELRELATIVED
+    #260   idx=50   p9-9    377t  negative,falsepositive,andfalsenegativesamples,respectively. IFTPSVM, IFW-LSTSVM, IFTSVM-ID, and TSVM, respec-
+    #261   idx=51   p9-9    361t  highlightedinbold.Thecorrespondingoptimalparametersfor lowestrankandviceversa.TheproposedRD-IFTSVMachieved the
+    #262   idx=52   p9-10   379t  the performance of all existing classifiers in the linear case. IFTSVM in comparison to baseline models. We in
+    #263   idx=53   p10-10   333t  by replacing randomly selected feature values. The results of proposed method contributes to its outstanding p
+    #264   idx=54   p10-10   373t  To further assess the impact of each component of the pro- (glass1, vehicle1, and spect) for C ∈{10−3,10−2,...
+    #265   idx=55   p10-10   357t  tion, the traditional distance-based membership function [10], four datasets: ecoli4, monk2, poker9vs7, and cl
+    #266   idx=56   p10-11   384t  ing patterns adequately by capturing the global information that the proposed RD-IFTSVM consistently outperfor
+    #267   idx=57   p11-11   373t  N m ( N m +1) =1.91. VI. STATISTICALANALYSES nificancelevelofα=0.05as:CD=q α N d Thissectionpresentsastatistic
+    #268   idx=58   p11-11   352t  −1degreesoffreedom(DOF),iscomputed icant, under the null hypothesis that there is no difference in statistic,w
+    #269   idx=59   p11-11   349t  F F statistic, with DOF (N m −1,(N m −1)(N d −1)) can be reject the null hypothesis. In our case for n=30, the
+    #270   idx=60   p11-12   377t  thecriticalF (7203) =2.05value,leadingtotherejectionofthe In this section, we apply the proposed RD-IFTSVM to 
+    #271   idx=61   p12-12   376t  colors, and indistinct boundaries, pose a significant challenge whichiscrucialforaccuratelydiagnosingmalignant
+    #272   idx=62   p12-12   357t  Archive. The dataset encompasses seven distinct categories of This study introduces a novel relative density a
+    #273   idx=63   p12-12   366t  prepare the images for analysis, all are resized to 224×224 mation to calculate the nonmembership function, we
+    #274   idx=64   p12-12   344t  to noise and outliers by reducing their impact significantly. Extensiveexperimentsconductedon30benchmarkKEELan
+    #275   idx=65   p12-13   360t  estperformanceindexcorrespondingtothatcolumn.Thepro- method is also applied to the HAM10000 dataset to showcas
+    #276   idx=66   p13-13   384t  applicabilitytoabroaderrangeofreal-worldapplications.Fur- [19] H.Yu,C.Sun,X.Yang,S.Zheng,andH.Zou,“Fuzzysuppor
+    #277   idx=67   p13-13   353t  inspiredbydynamicbeliefsystems,”IEEETrans.Knowl.DataEng.,vol. [22] Z.Sun,Q.Song,X.Zhu,H.Sun,B.Xu,andY.Zhou,“An
+    #278   idx=68   p13-13   383t  [4] E.Pasolli,F.Melgani,D.Tuia,F.Pacifici,andW.J.Emery,“SVMactive chinesforimbalanceddata,”Neurocomputing,vol.
+    #279   idx=69   p13-13   358t  Knowl.Inf.Syst.,vol.65,no.12,pp.5259–5288,2023. “Reliablefaultdiagnosisforlow-speedbearingsusingindividuallytr
+    #280   idx=70   p13-13   383t  [8] R.Jayadeva,Khemchandani,andS.Chandra,“Twinsupportvectorma- pp.659–682,2021. chinesforpatternclassification
+    #281   idx=71   p13-13   379t  [31] J. Tang, Y. Tian, P. Zhang, and X. Liu, “Multiview privileged support [11] S.Rezvani,X.Wang,andF.Pourpana
+    #282   idx=72   p13-13   361t  ValuedLog.SoftComput.,vol.vol.17,pp2–3,pp.255–287,2011. fuzzyweightedleastsquarestwinSVMs,”IEEETrans.Cybern.,v
+    #283   idx=73   p13-13   347t  fuzzytwinsupportvectormachinesbasedonrelativedensityinformation,” novel end-to-end deep convolutional neural n
+    #284   idx=74   p13-13   140t  [18] N.V.Chawla,K.W.Bowyer,L.O.Hall,andW.P.Kegelmeyer,“SMOTE: J.Frnda,“QuantumfruitflyalgorithmandResNet50-VGG
+
+======================================================================
+[doc 10] SFFSVM  (chunk_id 285 起)
+======================================================================
+
+  ── (无章节)
+    #285   idx=0    p1-1     80t  PDF Download 3579050.pdf 27 December 2025 Total Citations: 5 . Total Downloads: 652 . Latest updates: hps://d
+
+  ── Slack-Factor-Based Fuzzy Support Vector Machine for Revised: 13 November 2022
+    #286   idx=1    p1-1      8t  Received: 14 September 2022
+
+  ── Class Imbalance Problems
+    #287   idx=2    p1-1    171t  . . Citation in BibTeX format JINJUN REN, Lanzhou University of Finance and Economics, Lanzhou, . . Gansu, Chi
+
+  ── Imbalance Problems
+    #288   idx=3    p2-2    384t  JINJUNREN,SchoolofComputerScienceandTechnologyinXidianUniversityandSchoolofInfomation EngineeringinLanZhouUniv
+    #289   idx=4    p2-2    371t  SFFSVM,therelativedistancesbetweensamplesandanestimatedhyperplane,calledslackfactors,areused todefinethefuzzym
+    #290   idx=5    p2-2    357t  https://doi.org/10.1145/3579050 1 INTRODUCTION Classimbalanceproblems(brieflyknownasimbalancedproblems)commonl
+    #291   idx=6    p2-3    379t  China;email:ywang@xidian.edu.cn,xydeng@stu.xidian.edu.cn. Permissiontomakedigitalorhardcopiesofallorpartofthis
+    #292   idx=7    p3-3    357t  withmoresamples(i.e.,themajorityclass)whileignoringtheclasswithfewersamples(i.e.,the minorityclass).Toreduceth
+    #293   idx=8    p3-3    360t  ficationalgorithmsandaremoregeneric.However,thesemethodsmayintroducenoisydatainto thedatasets(e.g.,oversamplin
+    #294   idx=9    p3-3    377t  andeffectiveones,wherethedifferentmisclassificationcostsassociatedwithclassesareconsid- ered (e.g., the cost o
+    #295   idx=10   p3-3    366t  ownclass,i.e.,weights.Concretely,FSVMfirstemploysapredefinedFMfunctiontocalculatesam- ples’FMvalues.Then,these
+    #296   idx=11   p3-4    367t  thedistancebetweensamplesandtheirownclasscenter,thedistancebetweensamplesandthe Slack-Factor-BasedFuzzySupport
+    #297   idx=12   p4-4    350t  FMfunctiontocharacterizethesamples’importancebycombiningthesamples’SFswiththerel- ativepositionoftheoptimaldec
+    #298   idx=13   p4-4    355t  (2)theoptimaldecisionhyperplaneisgenerallylocatedbetweenthedecisionhyperplaneofDEC andthatofSVM.Also,thebetter
+    #299   idx=14   p4-4    372t  evaluatethesamples’importancefortheirownclass;(3)Thecomprehensiveexperimentalresults indicatethebetterperforma
+    #300   idx=15   p4-5    354t  donothingeonanyclassificationalgorithmsandaregeneraltechniquesforaddressingimbalanced classificationproblems. 
+    #301   idx=16   p5-5    348t  ples[3],thefilteringnoiseingeneratedsamples[6],theadaptivegenerationofnewsamples[17], andsoon. Distinctfromloc
+    #302   idx=17   p5-5    376t  (RUS)[36],asoneofthesimplestmethodsinthiscategory,isanon-heuristicapproachthataims toconstructbalanceddatasets
+    #303   idx=18   p5-5    362t  For example, Lin et al. [28] first use K-means to cluster the majority class samples, where the number of clus
+    #304   idx=19   p5-6    357t  tailedintroductiontoevolution-basedunder-sampling,pleasereferto[13].Obviously,theunder- samplingmethodisaspeci
+    #305   idx=20   p6-6    381t  functionbyconsideringthemisclassificationcosts[27].Thesealgorithmsdonotchangethedistri- butionofdatasetsandmor
+    #306   idx=21   p6-6    374t  i i i i i SVMlearnsaclassifieronD bymeansofoptimizingthefollowingobjective: (cid:2)N min (cid:7)w(cid:7)2+λ ξ 
+    #307   idx=22   p6-7    379t  ξ ≥ 0,i =1,2,...,N, i whereλ − =λandλ + =λ×IR. AlthoughDECwasbeneficialtohandletheimbalancedclassificationprob
+    #308   idx=23   p7-7    368t  thesamples’importanceintheirownclass,alargenumberofFMfunctionsareproposedinthe recentfewdecades.Forexample,Bat
+    #309   idx=24   p7-7    357t  the samples are, and vice versa. For example, noisy samples are generally assigned smaller FM values in order 
+    #310   idx=25   p7-7    346t  functionsassignsmallerMFvaluestothesamplesfarawayfromtheestimateddecisionhyperplane anddecreasetheimportanceof
+    #311   idx=26   p7-8    361t  f(x) :=siдn(wˆTx +bˆ) canbeobtainedbyoptimizingEquation(1)onadatasetD = {(x ,y )}N , i i i=1 wherewˆ andbˆ ist
+    #312   idx=27   p8-8    380t  Otherwise, if ξ ≥ 1, then the signs of bothy and f(x ) are opposite. Therefore, x cannot be i i i i correctlyc
+    #313   idx=28   p8-8    381t  φ(x i ) = e −βξi x i wherei =1,...,N andβ ∈[0,1]isasmoothingparameter. Note that the SF values of samples are 
+    #314   idx=29   p8-9    361t  Thatis,thecloserthedecisionhyperplanedefiningSFFMistotheoptimaldecisionhyperplane, 88:8 J.Renetal. Fig.2. Twok
+    #315   idx=30   p9-9    380t  SVM.Thatis,H isclosertoH thanH .However,H isnotequaltoH ,thereisoftena dec svm dec relativelylargegapbetweenth
+    #316   idx=31   p9-10   361t  althoughthedifferenceofproportionsbetweenW andW isverysmall,thenumberofsamples ofthemajorityclassisIRtimesofth
+    #317   idx=32   p10-10   357t  3.3 RectifytheSlack-Factor-BasedFuzzyMembershipFunction Inthissubsection,toobtaintheaccuratesampleimportanceby
+    #318   idx=33   p10-10   383t  Forx ∈ D + ,ifthegapbetweenH andH ∗ isreduced,thenthevaluesofξ shouldincrease. i dec i Thisisequivalenttomovin
+    #319   idx=34   p10-10   359t  ofthesamples’SFvalue,someelementsinW canbeexcludedfromW becausetheirSFsareless − thanone,andthustheirFMvaluess
+    #320   idx=35   p10-11   382t  withξ (cid:2) 2 may be abnormal samples (e.g., A in Figure 1(a) is not on one side of its own class), andtheir
+    #321   idx=36   p11-11   377t  Pseudo-code:Algorithm1presentsthedetailedpseudo-codeofSFFSVM.1 Inthefirsttwolines, we optimize Equation (2) on
+    #322   idx=37   p11-11   358t  5: ify i =1then + + 6: Putx i intoC ifξ i <1,otherwiseintoW . 7: Calculates usingEquations(5)and(7). 8: else −
+    #323   idx=38   p11-12   384t  computational complexity of SFFSVM isO(dN2), and it is evident that the computational com- plexityofSFFSVMisma
+    #324   idx=39   p12-12   376t  German 24 700 300 2.3 Glass6 9 185 29 6.4 Wine 13 130 48 2.7 Yeast2 8 1321 163 8.1 Haberman 3 225 81 2.8 Yeast
+    #325   idx=40   p12-12   348t  Glass016vs5 9 175 9 19.4 WQ-W3vs7 11 880 20 44 Shuttlec2vsc4 9 123 6 20.5 WQ-R8vs67 11 837 18 46.5 Shuttle6vs2
+    #326   idx=41   p12-12   357t  ofattributes(d),thenumberofthemajorityclasssamples(maj),thenumberoftheminorityclass samples(min),andIR.Also,we
+    #327   idx=42   p12-13   368t  (4) Othercategory:ComplementNaiveBayes(CNB)[34]andDEC[38]. 88:12 J.Renetal. FSVM-CILandCKA-FSVMaretypicalrepre
+    #328   idx=43   p13-13   376t  ensemble-basedunder-samplingmethodproposedinthepasttwoyears. Parametersettings:ForSFFSVMandFSVM-CIL,β ∈ {0,0.1
+    #329   idx=44   p13-13   359t  areassignedthebestonesin{2 −10,2 −9,...,23},andtheirvaluesofregularizationparameterλare selectedthebestonesin{
+    #330   idx=45   p13-13   378t  whereTN(TP)denotesthenumberofactuallynegative(positive)classsampleswhicharecorrectly predictedbyaclassifier,FN
+    #331   idx=46   p13-14   377t  TointuitivelypresenttheSFFSVM’seffectiveness,wecarriedoutanexperimentonartificialim- balanceddatasetswithdiffe
+    #332   idx=47   p14-14   361t  ineachclass,respectively.Notethatweassignthenoisyparameterofthemake-moonfunctionto 0.2inordertoincreasethediff
+    #333   idx=48   p14-14   376t  MWMOTE, PF-SMOTE, SMOTE-TL, HUB, and CNB), which were designed for handling imbal- anceddata.Theparametersetti
+    #334   idx=49   p14-15   384t  the overall performances of the fuzzy-based category (for example, FSVM-CIL and CKA-FSVM) arebetterthanotherca
+    #335   idx=50   p15-15   383t  resultishighlightedinboldface. TocheckfurthertheperformanceofSFFSVMfromtheaspectofthestatisticaltest,theWilcox
+    #336   idx=51   p15-16   362t  5.95. If the significance level isα = 0.05, the critical value F = 1.93 of the F distribution with F degreesof
+    #337   idx=52   p16-16   362t  whereq denotes the critical value of Tukey distribution,n is the number of methods andm is α thenumberofdatase
+    #338   idx=53   p16-16   360t  4.3.2 ExperimentalComparisonfortheContendingMethodsonImbalancedDatasetswithHigh IR. Figure4(b)showsthecomparis
+    #339   idx=54   p16-17   344t  BytheIman-Davenporttestandaveragerankofeachmethodonthreemetrics,wecouldcal- culateandgaintheIman-Davenportstat
+    #340   idx=55   p17-17   351t  Fig.6. CriticaldifferenceobtainedwithNemenyipost-hoctestforcomparedalgorithmsontheimbalanced datasetswithhighI
+    #341   idx=56   p17-18   379t  andCNEontheF1metric,andoutperformsSMOTE-TL,FSVM-CIL-exp,MWMOTE,CKA-FSVM, HUE,FSVM-CIL-lin,andCNBontheMCCmetric
+    #342   idx=57   p18-18   379t  experimentandweconductexperimentsof5-foldcross-validationoneachdataset10timesindependently, thuseachparameterh
+    #343   idx=58   p18-18   354t  anditsvaluecanadjustthesmoothnessofthemovingH . dec Figure 7 shows the histograms of the number of each of the
+    #344   idx=59   p18-19   375t  classsamplesaremisclassified)equals0.Inthiscase,SFFSVMisequivalenttoDECandiscapable ofremovingthemisclassified
+    #345   idx=60   p19-20   382t  compared algorithms on imbalanced datasets with different IR types, especially on imbalanced datasetswithhighI
+    #346   idx=61   p20-20   384t  13.9±14.87 50.2±37.08 46.2±59.98 56.1±78.69 82.4±17.65 75.3±20.55 77.3±10.27 88.5±59.06 87.3±97.46 33.5±32.87 
+    #347   idx=62   p20-20   384t  52.4±34.26 49.9±32.17 52.5±57.19 56.5±47.59 79.0±87.89 54.2±53.49 42.6±1.28 ETOMS-FP 33.3±6.79 11.5±1.98 5.7±4
+    #348   idx=63   p20-20   380t  42.11±67.45 11.4±72.79 40.7±80.49 51.7±58.54 91.3±48.65 43.3±95.29 88.0±97.89 27.6±21.26 27.3±86.65 33.3±30.66
+    #349   idx=64   p20-21   379t  68.5±87.19 49.4±55.35 2.21±40.97 61.4±58.47 84.9±2.54 45.5±0.59 2.5±97.59 68.3±1.56 30.67 CED .1.AelbaT LAIRET
+    #350   idx=65   p21-21   373t  45.4±54.75 20.7±57.43 36.6±36.73 16.2±93.13 78.7±49.55 54.6±82.04 33.4±65.75 20.7±77.52 10.9±72.54 11.6±80.3 5
+    #351   idx=66   p21-21   383t  RIwoLhtiwstesataDehtnosdohteMderapmoCehtfo)%(erocSCCM 79.56 55.41±82.33 62.11±84.62 20.01±49.18 54.01±52.82 93
+    #352   idx=67   p21-21   381t  53.8±39.92 57.3±49.19 36.6±80.45 87.7±63.14 56.8±44.28 81.6±25.39 57.8±70.86 60.7±76.88 74.2±82.28 76.5±70.39 
+    #353   idx=68   p21-21   384t  15.4±5.86 88.6±0.49 66.86 62.11±60.04 14.21±64.42 73.11±23.87 25.01±69.13 61.31±88.04 50.6±13.49 63.2±35.18 65
+    #354   idx=69   p21-22   380t  eniW tcepS reviL amiP deeS sirI Slack-Factor-BasedFuzzySupportVectorMachineforClassImbalanceProblems 88:21 63.
+    #355   idx=70   p22-22   381t  56.31±91.55 62.21±85.27 85.0±52.99 85.0±18.99 13.6±15.03 15.1±64.99 25.2±60.99 34.0±48.99 30.5±96.15 44.5±20.5
+    #356   idx=71   p22-22   381t  53.2±99.89 19.0±88.89 51.1±54.99 74.7±96.66 ETOMWM 10.5±5.15 9.7±48.43 0.0±0.001 47.77 65.01±81.93 51.31±42.16
+    #357   idx=72   p22-22   378t  52.0±68.99 82.1±26.99 81.3±44.28 61.9±70.44 36.5±39.55 21.1±27.89 87.01±6.67 24.6±76.66 75.0±37.99 33.6±31.49 
+    #358   idx=73   p22-23   379t  96.5±77.18 92.2±70.79 96.9±5.84 2.1±92.99 0.6±31.18 60.8±2.29 MVSFFS 59.18 4sv97650tsaeY 1dioryhtweN 2dioryhtw
+    #359   idx=74   p23-23   382t  85.2±7.92 49.1±63.4 14.1±1.9 10.1±1.2 74.2±4.6 15.92 BNC 22.01±19.13 57.01±92.91 38.11±33.55 58.01±63.64 64.41
+    #360   idx=75   p23-23   379t  89.22±14.33 36.21±79.82 17.01±95.62 13.61±30.81 71.23±74.47 93.33±74.25 60.22±28.53 72.41±29.97 38.31±63.52 80
+    #361   idx=76   p23-23   380t  5.92±24.44 1.52±85.34 99.5±66.26 34.01±88.8 20.2±76.88 17.1±50.99 26.41±5.31 75.1±23.89 88.11±81.9 60.1±15.99 
+    #362   idx=77   p23-23   382t  50.33±0.65 63.43±0.42 76.01±10.7 65.23±6.26 ETOMWM 94.7±28.1 62.11±8.2 4.9±7.8 79.54 19.01±67.68 72.01±54.15 4
+    #363   idx=78   p23-23   384t  39.41±16.76 78.01±82.45 61.02±15.23 41.61±88.07 25.02±38.66 30.01±82.35 72.74±30.44 99.12±22.36 92.23±38.84 42
+    #364   idx=79   p23-23   381t  96.1±85.79 34.3±41.99 70.5±39.93 93.2±16.89 26.6±94.93 53.7±40.93 80.5±42.42 76.4±35.41 28.9±60.45 84.6±53.49 
+    #365   idx=80   p23-23   379t  83.3±1.89 1.93±8.86 8.12±5.26 94.5±53.7 79.6±40.7 00.94 CED .4.AelbaT 52.63±43.96 53.11±31.11 39.12±36.31 46.1
+    #366   idx=81   p23-24   378t  4sv0-elttuhS 5sv610ssalG 2sv610ssalG 76sv8R-QW 819enolabA 4sv9W-QW 7sv3W-QW 5sv98rekoP 1kcolbegaP 2kcolbegaP 5
+    #367   idx=82   p24-24   383t  58.5±62.65 85.4±68.11 43.6±55.01 54.2±66.73 58.8±77.61 89.61±3.16 95.01±64.8 83.8±54.4 19.1±72.1 22.6±56.3 47.
+    #368   idx=83   p24-24   382t  64.24 EUH RIhgiHhtiwstesataDdecnalabmInosdohteMderapmoCehtfo)%(erocSCCM 97.41±54.88 61.01±28.86 76.52±13.43 72
+    #369   idx=84   p24-24   380t  38.41±49.21 89.91±75.18 22.33±66.36 89.21±55.08 19.31±12.93 18.41±57.87 11.21±21.82 86.11±61.56 86.21±88.66 58
+    #370   idx=85   p24-24   384t  88.9±14.96 22.3±49.89 1.62±62.64 4.34±69.82 7.11±30.82 71.6±76.25 49.2±39.48 91.4±26.89 2.31±21.11 18.2±93.89 
+    #371   idx=86   p24-24   382t  0.0±0.0 0.0±0.0 75.44 nil-LIC-MVSF 53.12±42.66 30.91±37.23 31.81±89.53 68.92±97.35 71.91±13.32 25.31±46.51 73.
+    #372   idx=87   p24-24   381t  24.12±39.36 42.72±16.83 33.81±71.92 77.21±70.28 88.7±73.51 24.4±69.82 98.6±78.71 57.1±64.79 57.9±14.42 27.4±28
+    #373   idx=88   p24-24   382t  54.7±44.23 16.1±25.89 30.94±0.26 25.5±36.35 81.31±6.42 91.4±26.89 37.9±70.86 36.21±5.18 73.3±90.89 57.1±50.99 
+    #374   idx=89   p24-25   380t  MVSFFS 26.55 DCBAsv91.abA 6ygolotamreD A987sv71.abA 62sv7310ilocE 4csv2celttuhS 32sv6elttuhS 5sv93W-QW 4sv0-el
+    #375   idx=90   p25-25   383t  15.4±84.61 18.6±10.92 4.41±75.61 0.02±55.65 70.5±86.61 99.7±22.72 37.3±26.28 17.6±84.59 58.8±74.97 48.5±55.31 
+    #376   idx=91   p25-25   378t  0.0±0.001 0.0±0.001 0.0±0.001 0.0±0.001 79.4±97.5 32.75 EUH RIhgiHhtiwstesataDdecnalabmInosdohteMderapmoCehtfo
+    #377   idx=92   p25-25   380t  61.64±96.86 92.72±23.36 20.51±53.53 66.11±32.91 76.22±96.64 63.31±90.71 13.22±57.74 66.42±25.54 75.01±33.39 57
+    #378   idx=93   p25-25   378t  89.7±36.32 26.7±55.55 47.8±76.01 23.0±49.99 6.74±60.54 9.61±64.23 21.0±89.99 79.01±7.81 90.71±5.42 81.12±7.83 
+    #379   idx=94   p25-25   381t  0.0±0.001 0.0±0.001 MVSF-AKC 4.6±24.89 9.7±69.65 38.6±44.9 36.5±12.5 0.8±82.6 9.3±37.5 87.75 nil-LIC-MVSF 51.1
+    #380   idx=95   p25-25   381t  92.32±38.39 25.42±27.67 11.84±61.93 74.01±52.31 68.32±68.21 22.41±60.91 69.62±83.06 17.41±57.72 62.22±77.05 21
+    #381   idx=96   p25-25   382t  63.41±20.27 59.02±95.25 49.44±35.05 0.82±79.94 26.8±96.62 34.9±53.01 20.0±99.99 20.9±71.69 87.3±94.58 80.0±89.
+    #382   idx=97   p25-26   367t  0.0±0.001 0.0±0.001 2.82±3.36 43.0±9.99 1.5±70.68 58.3±18.5 8.5±9.11 MVSFFS 28.95 DCBAsv91.abA 6ygolotamreD A9
+    #383   idx=98   p26-26   338t  niques.IEEETransactionsonKnowledgeandDataEngineering28,1(2015),238–251. [2] JesúsAlcalá-Fdez,AlbertoFernández,
+    #384   idx=99   p26-26   380t  [5] RukshanBatuwitaandVasilePalade.2010.FSVM-CIL:Fuzzysupportvectormachinesforclassimbalancelearning. IEEETran
+    #385   idx=100  p26-26   378t  tions,trends,andfuturechallenges.PatternRecognit.81,9(2018),674–693. [10] JanezDemšar.2006.Statisticalcomparis
+    #386   idx=101  p26-26   372t  imbalanceddatasets.InProceedingsofthe2008The8thIAPRInternationalWorkshoponDocumentAnalysisSystems. IEEE,677–68
+    #387   idx=102  p26-26   362t  [19] LindaKaufman.1999.SolvingtheQuadraticProgrammingProblemArisinginSupportVectorClassification.147–167. [20]
+    #388   idx=103  p26-27   374t  [24] MiroslavKubat,RobertC.Holte,andStanMatwin.1997.Learningwhennegativeexamplesabound.InMachineLearn- ing:ECM
+    #389   idx=104  p27-27   364t  [28] Wei-ChaoLin,Chih-FongTsai,Ya-HanHu,andJing-ShangJhang.2017.Clustering-basedundersamplinginclass- imbalanc
+    #390   idx=105  p27-27   373t  dersamplingensembleforimbalancedpatternclassificationproblems.IEEETransactionsonCybernetics52,2(2022), 1269–12
+    #391   idx=106  p27-27   382t  [36] MuhammadAtifTahir,JosefKittler,KrystianMikolajczyk,andFeiYan.2009.Amultipleexpertapproachtotheclass imbal
+    #392   idx=107  p27-27   382t  [40] JietingWang,YuhuaQian,FeijiangLi,JiyeLiang,andWeipingDing.2020.Fusingfuzzymonotonicdecisiontrees. IEEETra
+    #393   idx=108  p27-27   209t  [45] XiaoweiYang,GuangquanZhang,JieLu,andJunMa.2011.Akernelfuzzyc-meansclustering-basedfuzzysupport vectormach
+
+======================================================================
+[doc 11] CKA-FSVM  (chunk_id 394 起)
+======================================================================
+
+  ── (无章节)
+    #394   idx=0    p1-1     13t  Availableonlineatwww.sciencedirect.com
+
+  ── ScienceDirect
+    #395   idx=1    p1-1     30t  FuzzySetsandSystems394(2020)110–123 www.elsevier.com/locate/fss
+
+  ── Centered kernel alignment inspired fuzzy support vector machine > Tinghua Wanga,∗, Yunzhi Qiua, Jialin Huab
+    #396   idx=2    p1-1    337t  aSchool of Mathematics and Computer Science, Gannan Normal University, Ganzhou 341000, China bSchool of Comput
+    #397   idx=3    p1-1    361t  kernel alignment (CKA), which measures the degree of similarity between two kernels (or kernel matrices), we p
+    #398   idx=4    p1-2    376t  data mining community. SVM first maps data points from the input space to some feature space where the classes
+    #399   idx=5    p2-2    370t  overfitting [6]. Actually, a training point may not exactly belong to any of the classes when the outliers or 
+    #400   idx=6    p2-2    343t  ship calculation method, in which the membership is defined as a function of the distance between a data point
+    #401   idx=7    p2-2    359t  model, e.g., clustering algorithm-based FSVM [10–12], in which clustering methods are used to get more reasona
+    #402   idx=8    p2-2    380t  The goal of this paper is to propose a strategy of setting reasonable memberships based on the notion of cente
+    #403   idx=9    p2-3    371t  between a data point and its associated label and develop a new fuzzy membership calculation method for FSVM. 
+    #404   idx=10   p3-3    362t  SVM is a theoretically well motivated algorithm developed from statistical learning theory which has shown im-
+    #405   idx=11   p3-3    364t  hyperplane wTφ(x) +b=0that separates the training points into two classes with the maximal margin, where wis t
+    #406   idx=12   p3-3    370t  that the corresponding point x is treated as less important. From another viewpoint, if we consider C as the c
+    #407   idx=13   p3-4    364t  of the values of α . After the solution has been obtained, the FSVM decision function is given by i (cid:5) (c
+    #408   idx=14   p4-4    347t  where (cid:8)K , K (cid:9) is the Frobenius inner product between two matrices, which is given by 1 2 F (cid:2
+    #409   idx=15   p4-4    355t  cases, the origin of the feature spaces is far away from the mapped samples and hence the elements of kernel m
+    #410   idx=16   p4-4    383t  It is interesting to show the relations between kernel alignment and other kernel evaluation measures such as 
+    #411   idx=17   p4-5    384t  the CKA-based fuzzy memberships. 3.1. CKA-based fuzzy memberships For a binary classification problem, let K, 
+    #412   idx=18   p5-5    359t  l l (cid:8)K,yyT(cid:9) k(x ,x y y ) i= (cid:7)1 j=1 i j i j F = = (cid:7) (9) (cid:8)K,K(cid:9) (cid:8)L,L(ci
+    #413   idx=19   p5-5    382t  I-CKA(K,L,x )= k(x ,x )− k(x ,x ) (10) t t i t i yt =yi yt (cid:11)=yi Since the kernel k(x , x ) measures the
+    #414   idx=20   p5-5    347t  tively. For a more theoretical discussion of the I-CKA, we reformulate it with the normalized kernel, which ca
+    #415   idx=21   p5-6    348t  where φ is a centered feature map which is implicitly defined by k (x , x ) =φ(x )Tφ(x ). Thus nor t i t i (ci
+    #416   idx=22   p6-6    383t  = (cid:2) 1− (cid:2) 1+ 1 (cid:2)(cid:13) (cid:13) φ(x )−φ(x ) (cid:13) (cid:13)2− (cid:2)(cid:13) (cid:13) φ(
+    #417   idx=23   p6-6    374t  will be considered as an outlier or noise with high probability if this data point is much closerto the other 
+    #418   idx=24   p6-7    382t  2: Calculate the centered kernel kor kernel matrix K. 3: For j=1, ···, l Calculate I-CKA(K, L, xj)using Eq.(10
+    #419   idx=25   p7-7    373t  Confusion matrix. Predictedpositive Predictednegative Positive TP FN Negative FP TN It should be noted that, d
+    #420   idx=26   p7-7    367t  • KTA-FSVM: A fuzzy SVM classifier with fuzzy memberships calculated by using the KTA. Since it is very diffic
+    #421   idx=27   p7-7    368t  used to train FSVM. As for the SVM training and testing environment, we select the LIBSVM software package [36
+    #422   idx=28   p7-8    370t  class. The recall is the ratio of the number of samples correctly classified to the total number of samples be
+    #423   idx=29   p8-8    372t  commonly used measurement criterion in machine learning and data mining community. Formally, these measures ar
+    #424   idx=30   p8-8    348t  eration follows class prior probabilities): 50% of the data set serves as the training set and the remaining 5
+    #425   idx=31   p8-8    341t  based on the paired t-test in terms of the accuracy and F-measure results are listed in Table4, where the prop
+    #426   idx=32   p8-9    367t  respectively, while our CKA-FSVM reports five best results. In terms of the F-measure results, KFCM-FSVM and 1
+    #427   idx=33   p9-9    378t  F-measure(%) 79.62 79.83 80.24 80.06 80.59 nSVs 78 79 73 86 72 Ionosphere Accuracy(%) 91.01 91.06 92.35 92.73 
+    #428   idx=34   p9-10   378t  Ionosphere Accuracy W W W T F-measure W W W W Liver Accuracy W W T W F-measure W W T W Sonar Accuracy T T T T 
+    #429   idx=35   p10-10   369t  sification performance than KFCM-FSVM on the Australian, Diabetesand Ionospheredata sets. Similar analysis can
+    #430   idx=36   p10-10   367t  ((72.94-70.54)/70.54) and 6.11% ((71.76-67.63)/67.63), respectively, which are more significant than those on 
+    #431   idx=37   p10-10   366t  class. We utilize the Protein Fold Prediction data set,3 composed of 27 folds which have six or more proteins 
+    #432   idx=38   p10-10   360t  feature representations 1 to 10 (COM, SEC, HYD, VOL, POL, PLZ L1, L4, L14, and L30), and the concatenation on 
+    #433   idx=39   p10-11   384t  accuracy, F-measure, and fewer number of support vectors are obtained with a larger number of feature presenta
+    #434   idx=40   p11-11   379t  Lipocalins 9 7 α/β (TIM)-barrel 29 48 FAD(alsoNAD)-bindingmotif 11 12 Flavodoxin-like 11 13 NAD(P)-bindingRoss
+    #435   idx=41   p11-13   358t  5. Conclusion and future work This paper presents an effective CKA inspired FSVM model, called CKA-FSVM. In th
+    #436   idx=42   p13-13   365t  performance and those with smaller I-CKA values can be considered as outliers or noises. Comprehensive experim
+    #437   idx=43   p13-13   382t  Although a variety of improvements or new model selection approaches have been proposed to alleviate the relat
+    #438   idx=44   p13-13   363t  [5]M. Kumar, S.K. Rath, Classification of microarray using MapReduce based proximal support vector machine cla
+    #439   idx=45   p13-13   383t  [11]Z. Wu, H. Zhang, J. Liu, A fuzzy support vector machine algorithm for classification based on a novel PIM 
+    #440   idx=46   p13-13   368t  [17]B. Chang, U. Kruger, R. Kustra, J. Zhang, Canonical correlation analysis based on Hilbert-Schmidt independ
+    #441   idx=47   p13-14   377t  [22]T. Wang, D. Zhao, S. Tian, An overview of kernel alignment and its applications, Artif. Intell. Rev. 43(2)
+    #442   idx=48   p14-14   350t  International Conference on Algorithmic Learning Theory, Singapore, 2005, pp.63–77. [28]T. Wang, W. Li, Kernel
+    #443   idx=49   p14-14   339t  [33]J.C. Platt, Fast training of support vector machines using sequential minimal optimization, in: Advances i
+    #444   idx=50   p14-14   359t  [38]J. Demšar, Statistical comparisons of classifiers over multiple data sets, J. Mach. Learn. Res. 7 (2006) 1
+    #445   idx=51   p14-14   126t  [44]L. Wang, P. Xue, K.L. Chan, Two criteria for model selection in multiclass support vector machines, IEEE T
+
+======================================================================
+[doc 12] Curriculum Learning-Based Fuzzy Support Vector Machine  (chunk_id 446 起)
+======================================================================
+
+  ── machine
+    #446   idx=0    p1-1    341t  Baihua Chen, Yunlong Gao, Jinghua Liu, Wei Weng, Jiamei Huang, Yuling Fan∗, Weiyao Lan∗ Abstract—To improve th
+    #447   idx=1    p1-1    371t  where model initially learns easy samples to avoid noise inter- outliers on SVM. Specifically, the hyperplane-
+    #448   idx=2    p1-1    378t  modeloutperformsexistingcompetitorsintermsofaccuracyand similarity to the overall samples within the same clas
+    #449   idx=3    p1-1    372t  achieved great success, it still has drawbacks. For example, example,Fanetal.[19]proposedentropy-basedFSVM.Itc
+    #450   idx=4    p1-1    353t  and Grant No. 2021J011187, and in part by the Central Universities of Huaqiao University under Grant ZQN-1115.
+    #451   idx=5    p1-2    374t  gaoyl@xmu.edu.cn) of Noise samples: The hyperplane-based FSVM emphasizes JinghuaLiuiswithCollegeofComputerScie
+    #452   idx=6    p2-2    362t  ically, new models can first learn easy samples to obtain a n (cid:88) greatinitialsolution,andthenlearnallsam
+    #453   idx=7    p2-2    364t  these evaluations based on learning feedback. α i=1 i 2 i=1j=1 i j i j i j (6) n • Novel slack variable-based 
+    #454   idx=8    p2-2    352t  Inthissection,wewillintroducethehyperplane-basedfuzzy In this section, we introduce the FSVM and several membe
+    #455   idx=9    p2-2    353t  K(x ,x ) = Φ(x )TΦ(x ) is the kernel function. Given m- 2 i max(|u|)+∆ i j i j dimensional training data x (i 
+    #456   idx=10   p2-3    383t  loss. In addition, the Cv i can represent misclassification cost they believe that the samples far from the hy
+    #457   idx=11   p3-3    374t  Whenξ =0,itmeansthatthesamplex isclassifiedcorrectly i i figure represents the fuzzy membership degree corresp
+    #458   idx=12   p3-3    374t  f 8 (x i )=e− ∥ξi 2 − σ2 µ∥2 . (14) sampleislower,whichmaynotbecompletelyreasonable. • These fuzzy membership 
+    #459   idx=13   p3-3    381t  membership degree will also be smaller. This means that membership functions. In addition, density-based spati
+    #460   idx=14   p3-4    354t  functions are proposed. The slack variable reflects the dif- of points required to form a dense region, minPts
+    #461   idx=15   p4-4    384t  In summary, DBSCAN is a powerful clustering algorithm and The original data X=[x 1 ,x 2 ,···x n ]T ∈Rn×m. Para
+    #462   idx=16   p4-4    372t  them from the clusters [28]. 7: Γ old =Γ • Efficiency:DBSCANhasatimecomplexityofO(nlogn) 8: Randomly select a 
+    #463   idx=17   p4-4    379t  analyzethesamplesinthecorrespondingkernelfeaturespace. Therefore, how to measure the distance between samples 
+    #464   idx=18   p4-4    368t  i i i j j j (15) F(w(t),v(t),ξ(t)) > F(w(t−1),v(t−1),ξ(t−1)), where param- eter t is the number of iterations 
+    #465   idx=19   p4-4    362t  1, respectively. The {x ,y }m are independently drawn from X−) according to their label. Next, the ADBSCAN alg
+    #466   idx=20   p4-5     83t  membership function. The reason for using the all samples is Finding a decision rule h:X(cid:55)→y that minimi
+    #467   idx=21   p5-5     27t  | [Λ!,Γ!] | | --- | | SVM | | [Λ",Γ"] |
+    #468   idx=22   p5-5    351t  Γ" Iterative learning Curriculum learning Fig.3. Flowchartofcurriculumlearning-basedFSVM Algorithm 2 Curriculu
+    #469   idx=23   p5-5    319t  4: C da a t l a c . ulate w(0) and b(0) by standard SVM in [Λ+,Λ−] s w . , t b . ,ξ y i i 2 (wT·Φ(x i ) i + =1
+    #470   idx=24   p5-5    361t  10: I 2 1 f (cid:13) (cid:13) t w = (t 1 ) (cid:13) (cid:13)2+C i (cid:80) = n 1 v i (t)ξ i (t). i = R( ( h 1 
+    #471   idx=25   p5-6    371t  17: break; c. If −1<d i <1, the conditional risk is as follow: 18: End if 19: End for R(h)=(1− ma 1 x − (1 d −
+    #472   idx=26   p6-6    374t  Additionally, it can be observed that when minimizing the conditionalrisk,thevalueofd tendstowardspositiveinfi
+    #473   idx=27   p6-6    368t  2 decreases. As an example, Fig. 4 illustrates the relation- (b) β=0.9 ∥w∥2 ship between parameter β and margi
+    #474   idx=28   p6-6    380t  utilize moon data as the experimental data. This data consists w+C (cid:80) n (∂ ∂ ξ w ie− ∥ξi 2 − σ2 µ∥2 +(−ξ
+    #475   idx=29   p6-6    374t  ∥w∥2 data. Next, we introduce noise into the raw data, and the Fig. 5. experimental results are recorded in Fi
+    #476   idx=30   p7-7    382t  B. Experiment on benchmark datasets 1) Datasets: Wecomparetheclassificationperformanceof models on UCI dataset
+    #477   idx=31   p7-7    383t  [0.01,0.1,1,10,100].Theparameterβ ofEq.(9)andEq.(13) issetto0.5.Theparametersµandσ ofEq.(13)andEq.(14) are set
+    #478   idx=32   p7-8    358t  separately.TheexperimentalresultsarerecordedinTABLEII. FSVMs that introduce curriculum learning strategy based
+    #479   idx=33   p8-8    369t  Fig.6. ClassificationboundariesforSVM,FSVM1-SIC,FSVM2-SIC,FSVM3-SIC,andFSVM4-SIConmoondatawithGaussiannkernel 
+    #480   idx=34   p8-8    383t  heart 84.82±4.0 77.42±3.6 79.64±6.3 • Each slack variable-based FSVM has a significant im- glass 32.73±5.8 24.
+    #481   idx=35   p8-8    358t  sonar 82.24±5.7 59.20±6.7 75.51±4.5 • Especiallywhenmodelsuselinearkernel,theadvantages weather 96.15±8.6 78.1
+    #482   idx=36   p9-9    205t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #483   idx=37   p9-9    210t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #484   idx=38   p9-9    163t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #485   idx=39   p9-9    207t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #486   idx=40   p9-9    200t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #487   idx=41   p9-9    131t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #488   idx=42   p9-9    743t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #489   idx=43   p9-9    131t  | Critical Distance=1.296 5 4 3 2 1 FSVM FSVM FSVM SVM FSVM | | | 1-SIC 1-S 1-SI 1 | Critical Distance=1.296 5
+    #490   idx=44   p9-10    61t  also includes an iterative learning strategy. To validate the effectiveness of the curriculum learning strateg
+    #491   idx=45   p10-10   663t  | SVM | FSVM1 FSVM2 FSVM3 FSVM4 | | --- | --- | | 85.35±1.7 62.61±9.2 36.50±4.1 41.40±12.1 11.75±2.4 41.53±6.6
+    #492   idx=46   p10-10    50t  | SVM | FSVM1 FSVM2 FSVM3 FSVM4 | | --- | --- | | 6.917 | 5.250 5.611 4.722 5.111 |
+    #493   idx=47   p10-10    17t  TABLEV CLASSIFICATIONRESULTS(%)OFLINEARKERNELMODELS
+    #494   idx=48   p10-10   834t  | FSVM1-S FSVM1-SI FSVM1-SIC | FSVM2-S FSVM2-SI FSVM2-SIC | FSVM3-S FSVM3-SI FSVM3-SIC | | --- | --- | --- | |
+    #495   idx=49   p10-10   107t  | FSVM1-S FSVM1-SI FSVM1-SIC | FSVM2-S FSVM2-SI FSVM2-SIC | FSVM3-S FSVM3-SI FSVM3-SIC | | --- | --- | --- | |
+    #496   idx=50   p10-10    19t  TABLEVI CLASSIFICATIONRESULTS(%)OFGAUSSIANKERNELMODELS
+    #497   idx=51   p10-10  1212t  | FSVM1-S FSVM1-SI FSVM1-SIC | FSVM2-S FSVM2-SI FSVM2-SIC | FSVM3-S FSVM3-SI FSVM3-SIC | | --- | --- | --- | |
+    #498   idx=52   p10-10   110t  | FSVM1-S FSVM1-SI FSVM1-SIC | FSVM2-S FSVM2-SI FSVM2-SIC | FSVM3-S FSVM3-SI FSVM3-SIC | | --- | --- | --- | |
+    #499   idx=53   p10-10   360t  anablationexperimenttoapplybothiterativelearningstrategy membership functions Eq. (11), Eq. (12), Eq. (13), an
+    #500   idx=54   p11-11   348t  deviation, and the best results are highlighted in bold. necessary.WeempiricallytesttheconvergenceofAlgorithm2
+    #501   idx=55   p11-11   351t  models is distinguished by the critical distance (CD), and each iteration, respectively, where p represents th
+    #502   idx=56   p11-11   354t  to that of our method are connected by a red line. Otherwise, may not strictly decrease, as depicted in Fig. 9
+    #503   idx=57   p11-11   357t  riculum learning-based models can obtain better initial ence of the parameters β, µ, and σ on FSVM models. The
+    #504   idx=58   p11-11   337t  do not obtain a high-quality initial solution (initial hy- cantlyimprovementinclassificationaccuracyovertheori
+    #505   idx=59   p11-11   379t  (d) shows that FSVM4-SIC has a notable advantage over selectedfrom[0.01,0.1,1,10,100],andtheparameterβ isse- F
+    #506   idx=60   p11-12   208t  interference caused by such outliers. Thisapproach leads not affected by noise and outliers when analyzing sam
+    #507   idx=61   p12-12    56t  | | | | | | | --- | --- | --- | --- | --- | | | | | Objectiv | e function | | | | | | | | | | | | | | | | | | 
+    #508   idx=62   p12-12    56t  | | | | Objectiv | e function | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | | | | | | | 
+    #509   idx=63   p12-12    29t  eulaV 2.26 eulaV 0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #510   idx=64   p12-12    59t  | | | | Trainin Testing | g accuracy accuracy | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | 
+    #511   idx=65   p12-12    65t  | | | | Trainin Testing | g accuracy accuracy | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | 
+    #512   idx=66   p12-12    20t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #513   idx=67   p12-12    43t  | | | Tr | aining loss | | --- | --- | --- | --- | | | | | | | | | | | | | | | |
+    #514   idx=68   p12-12    48t  | | | Tr | aining loss | | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | | | |
+    #515   idx=69   p12-12    53t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations (a) FSVM1-SIC (b) FSVM2-SIC noitcnuf noitc
+    #516   idx=70   p12-12    50t  | | | | Objectiv | e function | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | |
+    #517   idx=71   p12-12    56t  | | | | Objectiv | e function | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | | | | | | | 
+    #518   idx=72   p12-12    26t  eulaV eulaV 0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #519   idx=73   p12-12    65t  | | | | Trainin Testing | g accuracy accuracy | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | 
+    #520   idx=74   p12-12    65t  | | | | Trainin Testing | g accuracy accuracy | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | 
+    #521   idx=75   p12-12    20t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #522   idx=76   p12-12    43t  | | | Tr | aining loss | | --- | --- | --- | --- | | | | | | | | | | | | | | | |
+    #523   idx=77   p12-12    43t  | | | Tr | aining loss | | --- | --- | --- | --- | | | | | | | | | | | | | | | |
+    #524   idx=78   p12-13   257t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations (c) FSVM3-SIC (d) FSVM4-SIC Fig.9. Converg
+    #525   idx=79   p13-13    34t  | | Objectiv | e function | | --- | --- | --- | | | | | | | | | | | | |
+    #526   idx=80   p13-13    38t  | | O | bjective function | | --- | --- | --- | | | | | | | | | | | | | | | | |
+    #527   idx=81   p13-13    29t  eulaV eulaV 0.8 0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #528   idx=82   p13-13    38t  | | Training Testing | accuracy accuracy | | --- | --- | --- | | | | | | | | |
+    #529   idx=83   p13-13    39t  | | T T | raining accuracy esting accuracy | | --- | --- | --- | | | | | | | | |
+    #530   idx=84   p13-13    20t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #531   idx=85   p13-13    35t  | | Tra | ining loss | | --- | --- | --- | | | | | | | | | | | | |
+    #532   idx=86   p13-13    34t  | | | Training loss | | --- | --- | --- | | | | | | | | | | | | |
+    #533   idx=87   p13-13    50t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations (a) FSVM1-SIC (b) FSVM2-SIC noitcnuf noitc
+    #534   idx=88   p13-13    23t  | Objectiv | e function | | --- | --- | | | | | | |
+    #535   idx=89   p13-13    30t  | | O | bjective function | | --- | --- | --- | | | | | | | | |
+    #536   idx=90   p13-13    26t  eulaV eulaV 0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #537   idx=91   p13-13    31t  | | | | --- | --- | | Training Testing | accuracy accuracy | | | |
+    #538   idx=92   p13-13    39t  | | | | | --- | --- | --- | | | T T | raining accuracy esting accuracy | | | | |
+    #539   idx=93   p13-13    23t  0.69 0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations
+    #540   idx=94   p13-13    27t  | | | | --- | --- | | Tr | aining loss | | | | | | |
+    #541   idx=95   p13-13    30t  | | | Training loss | | --- | --- | --- | | | | | | | | |
+    #542   idx=96   p13-14   236t  0 5 10 15 20 0 5 10 15 20 Number of iterations Number of iterations (c) FSVM3-SIC (d) FSVM4-SIC Fig.10. Conver
+    #543   idx=97   p14-14   116t  | Linearkernel | | | | | | | | --- | --- | --- | --- | --- | --- | --- | | FSVM1-SIC | FSVM2-SIC | FSVM3-SIC |
+    #544   idx=98   p14-14   452t  | Linearkernel | | | | | | | | --- | --- | --- | --- | --- | --- | --- | | 0.01 0.01 0.01 1 0.1 0.01 0.01 1 0.
+    #545   idx=99   p14-14    12t  iris iris FSVM2 FSVM3
+    #546   idx=100  p14-14    67t  | | | | | FS | VM2-SIC | | --- | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | | | | | | | |
+    #547   idx=101  p14-14   103t  | | | | | | | FS | | VM3-SIC | | | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | | | | | | | | |
+    #548   idx=102  p14-14    52t  0 0.2 0.4 0.6 0.8 1 0 0.2 0.4 0.6 0.8 1 (a) Linearkernel (a) Linearkernel iris iris FSVM2 FSVM3
+    #549   idx=103  p14-14    52t  | | | | FS | VM2-SIC | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | |
+    #550   idx=104  p14-14    52t  | | | | FS | VM3-SIC | | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | | | |
+    #551   idx=105  p14-15   376t  0 0.2 0.4 0.6 0.8 1 0 0.2 0.4 0.6 0.8 1 (b) Gaussiankernel (b) Gaussiankernel Fig.12. Parameterµandclassificat
+    #552   idx=106  p15-15   114t  | | | | | | | FS | | VM3-SIC | | | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | | | | | | | | |
+    #553   idx=107  p15-15   202t  0 0.2 0.4 0.6 0.8 1 K.Lakshmanan,N.Kumar,andR.K.Singh,“Comhisp:Anovelfeature extractorforhistopathologicalimag
+    #554   idx=108  p15-15    85t  | | | | | FS | | VM3-SIC | | | --- | --- | --- | --- | --- | --- | --- | --- | | | | | | | | | | | | | | | | |
+    #555   idx=109  p15-15   379t  chinesbasedontherescaledhingelossfunction,”PatternRecognition, 0 0.2 0.4 0.6 0.8 1 vol.63,pp.139–148,2017. [21
+    #556   idx=110  p15-15   373t  model. In the future, one of our tasks is to extend these basedtheory,algorithms,andextensions. CRCpress,2012.
+    #557   idx=111  p15-15   382t  classimbalancelearning,”IEEETransactionsonFuzzySystems,vol.18, 1446–1459,2017. no.3,pp.558–571,2010. [28] S. A
+    #558   idx=112  p15-15   374t  TransactionsonNeuralNetworks,vol.13,no.2,pp.464–471,2002. [31] M. J. Lyons, M. Kamachi, and J. Gyoba, “The jap
+    #559   idx=113  p15-15    68t  [9] U. Mishra, D. Gupta, and B. B. Hazarika, “An intuitionistic fuzzy randomvectorfunctionallinkclassifier,”Ne
+
+======================================================================
+[doc 14] GBFSVM  (chunk_id 560 起)
+======================================================================
+
+  ── (无章节)
+    #560   idx=0    p1-1     16t  IEEETRANSACTIONSONKNOWLEDGEANDDATAENGINEERING 1
+
+  ── Granular-Ball Fuzzy Set and Its Implement in SVM
+    #561   idx=1    p1-1    378t  Shuyin Xia, Xiaoyu Lian, Guoyin Wang*, Xinbo Gao, Qinghua Hu, Yabin Shao Abstract—Traditional fuzzy set method
+    #562   idx=2    p1-1    379t  GBFSVM surpasses traditional models in efficiency and ro- (IPF) to solve the high-dimensional classification p
+    #563   idx=3    p1-1    374t  cannot be distinctly defined. Recognizing the value of these and its dual evolutionary processes made it ineff
+    #564   idx=4    p1-1    360t  [33]. To simplify the rule set, Aghaeipoor et al. [1] proposed rough sets, leading to significant research and
+    #565   idx=5    p1-1    353t  effect of noise and outliers. Rezvani et al. [31] presented an information, the training stage’s complexity re
+    #566   idx=6    p1-2    376t  sity of Posts and Telecommunications, 400065, Chongqing, China. E- for classification, which not only inherits
+    #567   idx=7    p2-2    380t  reducing the impact of noise. Although existing methods introduces the concept of fuzzy granular-balls, making
+    #568   idx=8    p2-2    374t  The rest of this paper is organized as follows: we introduce The aforementioned methods are based on the fines
+    #569   idx=9    p2-2    356t  the broad shapes of the letters “H” and “S” before discerning the finer details that compose them. In granular
+    #570   idx=10   p2-2    371t  are then leveraged to address diverse problems [3], [8], [36], attribute decision-making where detailed decisi
+    #571   idx=11   p2-3    379t  µ (x)iscalledthemembershipfunctionorgradeofmember- the efficiency of fuzzy data processing, the idea of granul
+    #572   idx=12   p3-3    384t  decision-making problems involving multiple indicators and r attributes under uncertainty. The concept of tria
+    #573   idx=13   p3-3    384t  h e s a m e c la s s a r e u n if o r m l y t r e a t e d u s i n g S V M t h e - ory. In various real-world a
+    #574   idx=14   p3-3    368t  t y p e s of un c e r ta in ty . It’ s a c o n c e p t that is used extensively in fuzzy logic and fuzzy set t
+    #575   idx=15   p3-3    353t  scalability of high-dimensional data [42]. The core concept Thepossibilitymeasureofaneventisafunctiondefinedon
+    #576   idx=16   p3-3    364t  is defined as Pos{a ≤ b} = sup{µ (x)|x ∈ R,x ≤ b}. definition is as follows: (cid:101) (cid:101)a Similarly, t
+    #577   idx=17   p3-4    369t  number, then: the maximum distance. The balls generated with the average IEEETRANSACTIONSONKNOWLEDGEANDDATAENG
+    #578   idx=18   p4-4    355t  colorsofgranular-ballsinthefigure(correspondingtothetwo-samplepoint be expressed as: colors)representthetwotyp
+    #579   idx=19   p4-4    375t  in a set, i.e. the number of samples in a granular-ball. The of the granular-ball is the worst, and it cannot 
+    #580   idx=20   p4-4    365t  of the granular-balls over the samples. Generally, the more original dataset, which shows the granular-ball se
+    #581   idx=21   p4-5    370t  k-meansmethod(kisthenumberoflabelsinacertainball)to a plane in three dimensions, and a hyperplane in multi- en
+    #582   idx=22   p5-5    361t  ball fuzzy set, which is applicable across diverse domains of denoted by G = {((c ,r ),y ),i = 1,2,...,m} as i
+    #583   idx=23   p5-5    382t  granules as inputs, offers enhanced efficiency and robustness. Consequently, we have applied this granular-bal
+    #584   idx=24   p5-5    380t  GBSVM can be obtained as follows:  1 B. Fuzzy granular-ball computing framework min ∥w∥2, Inspired by granul
+    #585   idx=25   p5-5    365t  Therefore, the inseparable GBSVM model can be expressed where m and δ denote the number and membership as: GBm
+    #586   idx=26   p5-6    341t  eliminate the effect of the minimum granularity of the label Forthiscomputationalframework,theinputbecomesagen
+    #587   idx=27   p6-6    342t  to noisy. The framework called granular-ball fuzzy set can contribute to greater efficiency but potentially lo
+    #588   idx=28   p6-6    364t  provided the definition of a fuzzy granular-ball with a known “purity” [42], which is defined as the proportio
+    #589   idx=29   p6-6    381t  spherical data clusters, thereby enhancing efficiency. It is l 1(cid:88) worth noting that the presence of noi
+    #590   idx=30   p6-6    366t  Definition 8. The set of fuzzy granular-balls, G′ = fuzzy granular-balls generation, as illustrated in Algorit
+    #591   idx=31   p6-6    381t  balls. It is commendable that the fuzzy granular-ball classifier Consequently, either the membership degree of
+    #592   idx=32   p6-7    361t  input,enhancingcomputationalefficiency,especiallywhenthe canvaryfrom20%to100%,butinbothcases,thecorrespond- me
+    #593   idx=33   p7-7    383t  categories. The number of iteration steps is denoted as s 1−|x −x |/(r +ϵ), if y =1, i + + i and initialized t
+    #594   idx=34   p7-7    375t  7: GBs needs to continue splitting using the 2-means GBSVM,themembershipdegreeofeachballisintroducedto j clust
+    #595   idx=35   p7-7    363t  Theprocessingoftheseuncertaindatahasreceivedwidespread 2 i i i i i (14) i=1 attention [16], [17]. In particula
+    #596   idx=36   p7-7    340t  {((c 1 ,r 1 ),δ GB1 ,y 1 ),((c 2 ,r 2 ),δ GB2 ,y 2 ), ∂L (10) =Cδ −α −µ =0. (17) ...,((c m ,r m ),δ GBm ,y m )
+    #597   idx=37   p7-7    342t  the membership degree of the fuzzy granular-balls can be ob- (cid:13) (cid:13) α i y i c i (cid:13) (cid:13) =
+    #598   idx=38   p7-8    362t  fuzzy granular-ball can be obtained by Definition 8. (cid:18)(cid:13) (cid:13)(cid:80) m (cid:13) (cid:13) (ci
+    #599   idx=39   p8-8    339t  When 0<α<δ GB b C = , b 1 c + an ∥ y w be ∥r o i bt − ain w e c d i . as (22) i 1 2 n ( t ∥ ro A d ∥ u 2 ce − 
+    #600   idx=40   p8-8    368t  0≤α i ≤δ GBi C,i=1,2,...,m. (23) corresponds to the current iteration. We set the λn of the n-th In fact, Eq. 
+    #601   idx=41   p8-8    382t  to0,theGBFSVMmodel(13)isequivalenttoFSVM(6),and values of the two functions will converge to be infinitesimall
+    #602   idx=42   p8-8    382t  in each optimization step, while the remaining parameters are treated as constants. All constants are removed 
+    #603   idx=43   p8-9    376t  =min A2+ B2−∥A∥B− α (25) i=3 α 2 2 i (31) i=1 The constraints are = 1 2 (∥A∥−B)2− (cid:88) m α i . α 1 y 1 +α 
+    #604   idx=44   p9-9    336t  (cid:88) (cid:88) =ζy 2 cT 1 c 1 −ζy 2 cT 1 c 2 + y 2 α i y i cT 1 c i − y 2 α i y i cT 2 c i 1: Generate a fu
+    #605   idx=45   p9-9    380t  Putting Eqs. (34) into (33), α 2 can be updated as follows: 3: Select optimization variables α 1 n,α 2 n, anal
+    #606   idx=46   p9-9    384t  The model is solved using the aforementioned process, and  1 the detailed algorithm flow is presented in Algo
+    #607   idx=47   p9-9    384t  The number of the granular-ball dataset, where each sample does not conduct experimental comparisons on this m
+    #608   idx=48   p9-10   350t  Fuzzy numbers hold significant value in a fuzzy system. Xue isthenusedasthemembershipdegreeofgranular-ballsfor
+    #609   idx=49   p10-10   376t  fromthepublicUCIdataset,areoutlinedinTableIalongwith To further verify the high efficiency of granular-ball fu
+    #610   idx=50   p10-10   374t  DC-IFLSTSVM models from our time comparison as they Fourclass 862 2 Phoneme 5404 5 were not tested after conve
+    #611   idx=51   p10-10   379t  applicable to all fuzzy data processing methods. This study FSVM, SVM, CDFTSVM and DC-IFLSTSVM represent the i
+    #612   idx=52   p10-10   381t  Moreover,wehavenotusedthetriangularfuzzynumber-based ferent noise levels are listed in Table II. The most ac- 
+    #613   idx=53   p10-10   379t  point as the input. While this input form resembles that of the Grant No. HZ2021008, and Natural Science Found
+    #614   idx=54   p10-11   354t  Furthermore, even when the radius is 0, the model maintains genetic algorithm in fuzzy rule-based classificati
+    #615   idx=55   p11-11   370t  DC-IFLSTSVM 0.7428 0.5470 0.9381 0.8580 0.7643 0.7553 0.7751 0.9699 0.7199 0.6417 0.5156 0.6533 GBFSVM 0.6695 
+    #616   idx=56   p11-11   367t  GBFSVM 0.7839 0.7419 0.9653 0.8406 0.7702 0.7095 0.8451 0.9260 0.7857 0.6858 0.6270 0.6950 GBFSVM(R=0) 0.7339 
+    #617   idx=57   p11-11   372t  GBFSVM(R=0) 0.7834 0.7661 0.9781 0.8478 0.7616 0.7798 0.8451 0.9580 0.7532 0.7265 0.5492 0.7550 SVM 0.7331 0.7
+    #618   idx=58   p11-11   366t  SVM 0.7034 0.7097 0.9562 0.8442 0.7457 0.6555 0.8099 0.9040 0.7354 0.7030 0.5061 0.7075 FSVM 0.7203 0.7218 0.9
+    #619   idx=59   p11-11   368t  FSVM 0.7203 0.7137 0.9672 0.8551 0.7197 0.7741 0.8427 0.9260 0.7251 0.6944 0.5328 0.6950 25% CDFTSVM 0.7246 0.
+    #620   idx=60   p11-11   374t  CDFTSVM 0.7458 0.6475 0.9653 0.7754 0.7326 0.7047 0.8071 0.9080 0.6542 0.6389 0.5021 0.7213 DC-IFLSTSVM 0.6600
+    #621   idx=61   p11-11   368t  Haberman 10.6642 9.9435 4.9954 2.2531 [5] H.Chen,T.Li,D.Ruan,J.Lin,andC.Hu.Arough-set-basedincremen- BreastCan
+    #622   idx=62   p11-12   351t  IndianLiverPatient 3466.3167 158.4908 403.5732 7.5269 fuzzy twin support vector machine for classification. In
+    #623   idx=63   p12-12   348t  [10] A.-b.Ji,J.-h.Pang,andH.-j.Qiu. Supportvectormachineforclassifi- reduction strategy with evolutionary algo
+    #624   idx=64   p12-12   368t  [12] A.KumariandM.Tanveer. Dualcenterbasedintuitionisticfuzzyplane neighborhoodmultigranulationroughsets. IEEE
+    #625   idx=65   p12-12   371t  IEEETransactionsonKnowledgeandDataEngineering,20(11):1519– [40] X.-Z. Wang, L.-C. Dong, and J.-H. Yan. Maximum
+    #626   idx=66   p12-12   347t  [17] X. Lian and L. Chen. Similarity join processing on uncertain data InformationSciences,483:136–152,2019. s
+    #627   idx=67   p12-12   354t  distributioninputs. IEEETransactionsonFuzzySystems,2023. roughsetalgorithmforfastadaptiveattributereductioninc
+    #628   idx=68   p12-12   352t  [23] C.K.LooandM.Rao.Accurateandreliablediagnosisandclassification method. Scientific Journal of Intelligent S
+    #629   idx=69   p12-12   380t  measures. FuzzySetsandSystems,92(2):191–196,1997. for complex problem solving. In International Conference on 
+    #630   idx=70   p12-12   359t  [53] J.Zhan,J.Ye,W.Ding,andP.Liu. Anovelthree-waydecisionmodel computing. European Journal of Operational Rese
+    #631   idx=71   p12-12   367t  [31] S. Rezvani and J. Wu. Handling multi-class problem by intuitionistic granularstructureofneighborhoodsyste
+    #632   idx=72   p12-12    31t  makingproblems.IEEETransactionsonFuzzySystems,29(4):716–730, 2019.
+
+======================================================================
+[doc 15] GB-CLFSVM  (chunk_id 633 起)
+======================================================================
+
+  ── (无章节)
+    #633   idx=0    p1-1     47t  2025 IEEE 24th International Conference on Trust, Security and Privacy in Computing and Communications (TrustC
+
+  ── Fuzzy Support Vector Machine
+    #634   idx=1    p1-1    368t  Zhenlei Wu, Xiaoqin Pan*, Lei Zhou :IOD School of Computer Science and Technology, Southwest University of Sci
+    #635   idx=2    p1-1    352t  curriculum learning strategy. However, the performance of this classification performance. model heavily depen
+    #636   idx=3    p1-1    379t  select a set of core samples, building a small and high-quality with generalization ability. Tanveer et al. [6
+    #637   idx=4    p1-1    378t  baselinemodelinbothclassificationaccuracyandnoiseresistance, utilizes support vector data description for robu
+    #638   idx=5    p1-1    379t  outliersduetomeasurementerrors,environmentalinterference, sample labels. For example, after adding slight nois
+    #639   idx=6    p1-1     37t  *Thecorrespondingauthor. rithm’s superior performance in noisy scenarios. Granular ball
+    #640   idx=7    p1-1     74t  | 2324-9013/25/$31.00 ©2025 IEEE DOI 10.1109/Trustcom66490.2025.00174 Authorized licensed use limited to: Shan
+    #641   idx=8    p2-2    122t  | &ODVV &ODVV 'HFLVLRQ%RXQGDU\ HUXWDH) )HDWXUH | | | | &ODVV &ODVV | | | --- | --- | --- | --- | --- | --- | |
+    #642   idx=9    p2-2    122t  | &ODVV &ODVV 'HFLVLRQ%RXQGDU\ HUXWDH) )HDWXUH | | | | &ODVV &ODVV | | | --- | --- | --- | --- | --- | --- | |
+    #643   idx=10   p2-2    376t  (b)Noisydata each sample. Specifically, reliable samples have a dominant (a)Cleandata influence on the formati
+    #644   idx=11   p2-2    370t  anti-interference capabilities. machine learning. Then, Chen et al. [18] applied the concept Given a training 
+    #645   idx=12   p2-2    380t  Based on the preceding analysis, we integrate the noise i=1 (1) s.t. y (wTϕ(x )+b)≥1−ξ , identification capabi
+    #646   idx=13   p2-2    374t  aprogressivecurriculumlearningstrategytorealizemulti- against the margin size. stagetraining.Thisframeworkstar
+    #647   idx=14   p2-3    381t  model in the subsequent curriculum learning process. By taking the partial derivatives with respect to w, b, ξ
+    #648   idx=15   p3-3    356t  first employs a clustering method to identify simple samples whichallowsforassigninghigherweightstosampleswith
+    #649   idx=16   p3-3    362t  CLFSVM defines a new slack variable, ξ i = max(0,1 − selection, the CLFSVM framework modifies DBSCAN by y i (w
+    #650   idx=17   p3-4    364t  innoisyscenarios,itstillsuffersfromthefollowinglimitations. where δ is a very small constant to prevent the de
+    #651   idx=18   p4-4    378t  a decrease in model training efficiency. simplest samples. Theprocedureofthedensity-basedgranularballalgorithm
+    #652   idx=19   p4-4    377t  denotes the class. The density-based granular ball algorithm (lines14-18),afor-loopiteratesthroughthefinalgran
+    #653   idx=20   p4-4    364t  FSVM. In the curriculum learning stage, the distance matrix to significantly lower efficiency in core sample s
+    #654   idx=21   p4-4    379t  calculatetheslackvariableξ andupdatingtheiterativeweight 6: if density ρ(B k ) < θ and number of samples |B k 
+    #655   idx=22   p4-4    351t  balls employs a dynamic splitting strategy based on 2-means 19: ifD + isemptyand|Dc|>0then clustering and a pu
+    #656   idx=23   p4-5    356t  from the most reliable and representative prototypes, aligning calculated to avoid disrupting the stable decis
+    #657   idx=24   p5-5    372t  thereby preventing outlier samples from interfering with the d i = min ∥x i −x j ∥ 2 , (13) xj∈Dc + optimizati
+    #658   idx=25   p5-5    361t  introduced non-core sample x i ∈D t is calculated as follows: + xk∈Dc + where Dc + denotes the set of core sam
+    #659   idx=26   p5-5    373t  metric called sample separability [21], denoted as q , which is i els, and our work directly improves upon its
+    #660   idx=27   p5-5    332t  the separability values q i for all non-core samples x i ∈ D − , µ [0,0.2,0.4,0.6,0.8,1] ParameterforEq.(6) as
+    #661   idx=28   p6-6    237t  | 3RVLWLYH&ODVV&RUH 3RVLWLYH&ODVV1RQFRUH 1HJDWLYH&ODVV&RUH 1HJDWLYH&ODVV1RQFRUH GH]LGUDGQDW6HUXWDH) )HDWXUH6WD
+    #662   idx=29   p6-6     38t  cleve 296 13 2 (a)CoresamplesselectedbyADBSCAN(300coresamples) monk1 432 6 2 sonar 208 60 2
+    #663   idx=30   p6-6    237t  | 3RVLWLYH&ODVV&RUH 3RVLWLYH&ODVV1RQFRUH 1HJDWLYH&ODVV&RUH 1HJDWLYH&ODVV1RQFRUH GH]LGUDGQDW6HUXWDH) )HDWXUH6WD
+    #664   idx=31   p6-6    383t  CLFSVM, we designed a comparative experiment. We used (b)Coresamplesselectedbygranularball(13coresamples) the 
+    #665   idx=32   p6-6    373t  noisy features. Second, the labels of 20% of the training characteristic required for curriculum learning. In 
+    #666   idx=33   p6-7    351t  anidealtrainingsequenceforthesubsequentcurriculumlearn- with a step size of 0.1. ing.Thesefindingsconfirmthead
+    #667   idx=34   p7-7     54t  dataset FSVM1-SIC FSVM2-SIC FSVM3-SIC FSVM4-SIC GB-CLFSVM1 GB-CLFSVM2 GB-CLFSVM3 GB-CLFSVM4
+    #668   idx=35   p7-7    497t  | 17.82±5.9 17.06±5.7 17.43±5.4 17.62±6.6 66.87±7.4 57.86±4.9 55.61±6.5 56.75±8.3 81.84±1.5 82.07±1.3 81.61±1.
+    #669   idx=36   p7-7     75t  TABLE IV: Accuracy (%) comparison with the RBF kernel dataset FSVM1-SIC FSVM2-SIC FSVM3-SIC FSVM4-SIC GB-CLFSV
+    #670   idx=37   p7-7    497t  | 13.64±3.6 14.77±2.1 13.64±3.3 14.02±3.7 44.44±12.9 45.03±10.0 45.57±12.1 45.00±13.0 68.51±5.1 68.74±5.0 68.0
+    #671   idx=38   p7-7    369t  deviation” in percentage, with the best results highlighted sonar), with a best performance rate of 17.65%. No
+    #672   idx=39   p7-8    339t  CLFSVM and CLFSVM algorithms (eight model variants in CLFSVMfluctuatedsignificantlylessundernoiseinterference,
+    #673   idx=40   p8-8    362t  CLFSVM, we conducted comparative experiments using the basedonsvmclassificationareview,”QubahanAcademicJournal
+    #674   idx=41   p8-8    356t  [6] M. Tanveer, M. A. Khan, and S.-S. Ho, “Robust energy-based least also markedly better than that of CLFSVM 
+    #675   idx=42   p8-8    370t  droppedfrom91.67%to77.78%(a13.89%decrease),whereas sets,”NeuralNetworks,vol.122,pp.289–307,2020. CLFSVM’s plum
+    #676   idx=43   p8-8    373t  V. CONCLUSION [12] J. Zhe and Q. Zhang, “Intuitionistic fuzzy svm based on kernel gray relational analysis.” P
+    #677   idx=44   p8-8    361t  datadistributions.Second,itemploysagranularballalgorithm Systems,2024. for the automatic selection of core sam
+    #678   idx=45   p8-8    377t  considering the inherent classification ambiguity of samples, “Curricular robust reinforcement learning via ga
+    #679   idx=46   p8-8    371t  of the proposed method.In future work, we will extend our [20] S. Xia, Y. Liu, X. Ding, G. Wang, H. Yu, and Y.
+    #680   idx=47   p8-8    135t  dation under grants 21zx7115 and 23zx7123. thirdinternationalconferenceonautomaticfaceandgesturerecognition, 1
+
+======================================================================
+[doc 19] 部署检查清单  (chunk_id 759 起)
+======================================================================
+
+  ── 部署检查清单 > 启动顺序
+    #759   idx=0    p0-0     26t  Postgres 必须先于 worker 就绪，否则 worker 的 preflight 会拒绝启动。
+
+  ── 部署检查清单 > 隧道
+    #760   idx=1    p0-0     24t  SSH 隧道断了只会超时，不会报错。用 ssh -N -L 保持。
+
+  ── 部署检查清单 > 常见问题
+    #761   idx=2    p0-0     32t  上传后一直 queued，说明没有 worker 在消费队列。看 worker 进程还在不在。

@@ -1,0 +1,241 @@
+# ============================================================================
+# 一键启动：docker compose up -d --build
+#
+# 默认启动 postgres + milvus + api + worker（模型跑在 api 进程内）。
+#
+# 可选 profile：
+#   --profile models   额外启动 embed / rerank 两个独立推理服务（TEI）
+#                      配合 .env 里 EMBED_PROVIDER=api、RERANK_PROVIDER=api
+#   --profile graph    额外启动 neo4j
+#   --profile gpu      给 embed / rerank 挂上 GPU（需要 nvidia-container-toolkit）
+#
+# 内存预算（空闲 / 加载后）：
+#   postgres   ~120MB / ~400MB
+#   milvus     ~1.5GB / ~3-4GB    ← 单容器（内嵌 etcd + 本地存储）
+#   neo4j      ~1.2GB / ~1.6GB    ← 默认不启动
+#   api+worker ~350MB / ~900MB    （模型在进程内时，再加 ~1.5GB 权重）
+#   embed      ~200MB / ~1.5GB    ← 加载 bge-large-zh 后
+#   rerank     ~200MB / ~2.5GB    ← 加载 bge-reranker-v2-m3 后
+#
+# ★ 前置检查：CPU 必须支持 AVX2，否则 Milvus 会 Illegal instruction 崩溃重启
+#     grep -m1 -o avx2 /proc/cpuinfo
+# ============================================================================
+name: rag-agent
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      # true  = 进程内加载 BGE（镜像 ~2.2GB）
+      # false = 纯 API 模式，模型交给 embed/rerank 服务（镜像 ~450MB）
+      WITH_LOCAL: "${WITH_LOCAL:-true}"
+      BASE_IMAGE: "${BASE_IMAGE:-python:3.12-slim}"
+      TORCH_INDEX_URL: "${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}"
+  env_file: [.env]
+  environment:
+    # ★ .env 是给"本机直跑"用的，里面的 localhost 在容器网络里指向容器自己。
+    #   这里用服务名覆盖，是容器化最常见的坑：配置没改，连的却是错的库。
+    POSTGRES_HOST: postgres
+    MILVUS_URI: http://milvus:19530
+    NEO4J_URI: bolt://neo4j:7687
+    # 模型目录由 compose 挂载，.env 里的 Windows 路径在容器里不存在
+    EMBED_MODEL_PATH: /models/bge-large-zh-v1.5
+    RERANK_MODEL_PATH: /models/bge-reranker-v2-m3
+    # 走独立推理服务时的地址（profile: models）
+    EMBED_API_BASE: http://embed:80
+    RERANK_API_BASE: http://rerank:80
+    HF_HUB_OFFLINE: "1"
+    TRANSFORMERS_OFFLINE: "1"
+  volumes:
+    - ./data/uploads:/app/data/uploads
+    - ${MODEL_DIR:-./models}:/models:ro        # ★ 权重不进镜像，只读挂载
+  restart: unless-stopped
+
+services:
+  # ----------------------------------------------------------------------
+  # 基础设施
+  # ----------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rag_dev_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-rag}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"              # ★ 只绑本地回环，绝不暴露公网
+    healthcheck:
+      # ★ -U 和 -d 都要给：只写 pg_isready 会在 initdb 完成前就返回 0，
+      #   导致 api 在数据库还没建好时就连上去
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rag} -d ${POSTGRES_DB:-rag}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+
+  milvus:
+    image: milvusdb/milvus:${MILVUS_VERSION:-v2.6.11}   # 禁止 :latest，锁定 patch 版本
+    command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_USE_EMBED: "true"               # 内嵌 etcd，省一个容器
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      ETCD_CONFIG_PATH: /milvus/configs/advanced/etcd.yaml
+      COMMON_STORAGETYPE: local            # 本地存储，省掉 MinIO 容器
+      COMMON_STORAGEPATH: /var/lib/milvus/data
+      common.security.authorizationEnabled: "false"   # 个人项目；对公网必须 true
+    volumes:
+      - milvusdata:/var/lib/milvus
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:9091:9091"              # metrics/health，★ 绝不对外
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 90s                    # Milvus 冷启动慢，给足时间
+    deploy:
+      resources:
+        limits:
+          memory: ${MILVUS_MEM_LIMIT:-5G}
+
+  neo4j:
+    image: neo4j:5.26-community
+    profiles: ["graph"]                    # 默认不启动
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-rag_dev_pw}
+      # ★ 5.x 是 server_memory_*；老文档里的 dbms_memory_* 是 5.x 之前的命名，
+      #   写了不报错但也不生效
+      NEO4J_server_memory_heap_max__size: ${NEO4J_HEAP:-1G}
+      NEO4J_server_memory_pagecache_size: ${NEO4J_PAGECACHE:-512M}
+      NEO4J_server_default__listen__address: 0.0.0.0
+    volumes:
+      - neo4jdata:/data
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-rag_dev_pw} 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  # ----------------------------------------------------------------------
+  # 模型推理服务（可选，--profile models）
+  #
+  # ★ 为什么要拆出来：
+  #   跑在 api 进程内时，api 和 worker 各加载一份权重（2 × 1.3GB），
+  #   而且每次改代码重启 API 都要重新加载模型（几十秒）。
+  #   拆成独立服务后：权重只加载一次、API 镜像不需要 torch（2.2GB → 450MB）、
+  #   模型服务和业务服务可以各自扩缩容。
+  #
+  # ★ 代价是多一跳 HTTP（本机网络 ~1ms，可忽略）。
+  # ----------------------------------------------------------------------
+  embed:
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.8}
+    profiles: ["models"]
+    # ★ TEI 会自动识别模型类型：BGE 这类双塔模型暴露 /embed，交叉编码器暴露 /rerank。
+    #   --max-client-batch-size 要和应用的 EMBED_BATCH_SIZE 对齐，
+    #   否则大批量入库时会被服务端拒绝（413）。
+    command:
+      - "--model-id=/models/bge-large-zh-v1.5"
+      - "--port=80"
+      - "--max-client-batch-size=64"
+      - "--auto-truncate"                  # 超过模型上限时截断而不是报错
+    volumes:
+      - ${MODEL_DIR:-./models}:/models:ro
+    ports:
+      - "127.0.0.1:8081:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s                   # 首次要从挂载目录加载权重
+
+  rerank:
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.8}
+    profiles: ["models", "rerank"]
+    command:
+      - "--model-id=/models/bge-reranker-v2-m3"
+      - "--port=80"
+      - "--max-client-batch-size=64"
+      - "--auto-truncate"
+    volumes:
+      - ${MODEL_DIR:-./models}:/models:ro
+    ports:
+      - "127.0.0.1:8082:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 120s
+
+  # ----------------------------------------------------------------------
+  # 应用
+  # ----------------------------------------------------------------------
+  api:
+    <<: *app
+    command: ["uvicorn", "rag.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      # ★ 长格式：短格式只保证容器"创建"顺序，不保证服务"就绪"。
+      #   用短格式会出现 api 比 Postgres 先接受连接 → 启动即崩。
+      postgres: {condition: service_healthy}
+      milvus: {condition: service_healthy}
+      # required:false = 该服务没启用时不阻塞（profile 未激活时 compose 会跳过）
+      embed: {condition: service_healthy, required: false}
+      rerank: {condition: service_healthy, required: false}
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz',timeout=3).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      # ★ 进程内加载模型时冷启动要几十秒，start_period 必须覆盖它，
+      #   否则容器会在模型还没加载完时就被判定为 unhealthy
+      start_period: ${API_START_PERIOD:-120s}
+
+  # 摄取 worker：和 api **同镜像、同依赖、只换 command**。
+  # 这样两边用的 provider 实现和分块参数天然一致 ——
+  # 不会出现"API 切出来的块和 worker 切出来的块不一样"这种最难查的问题。
+  #
+  # 扩容：`docker compose up -d --scale worker=3`。
+  # 任务用 Postgres 的 FOR UPDATE SKIP LOCKED 原子领取，多开不会重复消费。
+  # 某个 worker 被 kill -9 后，它手上的任务会停在 running，
+  # 等租约（默认 900s）过期后被别的 worker 自动捞回来重跑。
+  worker:
+    <<: *app
+    command: ["python", "-m", "rag.worker"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      milvus: {condition: service_healthy}
+      embed: {condition: service_healthy, required: false}
+      rerank: {condition: service_healthy, required: false}
+    # ★ worker 没有 HTTP 端口，不能复用 api 的健康检查。
+    #   用进程存活检查：容器里 PID 1 就是 worker 进程。
+    #
+    #   ★ 这个检查有个已知的盲区：worker 卡死（比如某个解析库挂住不返回）
+    #     时进程还在，healthcheck 依然绿。Docker 层面看不出来 ——
+    #     要发现这种情况得看日志里 worker.job_start 有没有对应的 job_done。
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  pgdata:
+  milvusdata:
+  neo4jdata:

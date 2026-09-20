@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG Agent · 知识库问答</title>
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="dot" id="brand-dot"></span>
+    <strong>RAG Agent</strong>
+    <span class="sub">混合检索 · LangGraph 编排 · 引用可溯源</span>
+  </div>
+  <div class="health" id="health" title="点击刷新">
+    <span class="health-label">组件</span>
+    <div class="pills" id="health-pills"><span class="muted">检测中…</span></div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ================= 左栏：知识库 ================= -->
+  <section class="col col-left">
+    <div class="panel">
+      <h2>上传文档</h2>
+      <div class="drop" id="drop">
+        <input type="file" id="file" multiple hidden
+               accept=".pdf,.docx,.md,.markdown,.txt">
+        <div class="drop-icon">↑</div>
+        <p><strong>拖文件到这里</strong>，或 <button class="link" id="pick" type="button">选择文件</button></p>
+        <p class="muted small">PDF / DOCX / Markdown / TXT，单文件上限见配置</p>
+      </div>
+
+      <label class="mode">
+        <input type="checkbox" id="sync" checked>
+        <span>同步解析（小文件方便；关掉走 worker 异步队列）</span>
+      </label>
+
+      <div id="uploads" class="uploads"></div>
+    </div>
+
+    <div class="panel grow">
+      <div class="panel-head">
+        <h2>知识库</h2>
+        <button class="ghost" id="refresh-docs" type="button">刷新</button>
+      </div>
+      <div id="docs" class="docs"></div>
+    </div>
+  </section>
+
+  <!-- ================= 右栏：检索 / 问答 ================= -->
+  <section class="col col-right">
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="search" type="button">检索</button>
+      <button class="tab" data-tab="chat" type="button">问答</button>
+    </div>
+
+    <!-- ---- 检索 ---- -->
+    <div class="panel grow tabpane" id="pane-search">
+      <div class="askbar">
+        <input type="text" id="q" placeholder="输入问题，回车检索…" autocomplete="off">
+        <button class="primary" id="go" type="button">检索</button>
+      </div>
+
+      <div class="ablation">
+        <span class="muted small">消融开关（关掉一路看召回怎么变）：</span>
+        <label><input type="checkbox" id="use-dense" checked> 稠密</label>
+        <label><input type="checkbox" id="use-sparse" checked> 稀疏 BM25</label>
+        <label><input type="checkbox" id="use-rerank" checked> 重排</label>
+        <span class="muted small" id="rerank-note"></span>
+      </div>
+
+      <div id="search-out" class="out"></div>
+    </div>
+
+    <!-- ---- 问答 ---- -->
+    <div class="panel grow tabpane hidden" id="pane-chat">
+      <div id="chat-banner"></div>
+      <div class="askbar">
+        <input type="text" id="question" placeholder="基于知识库提问…" autocomplete="off">
+        <button class="primary" id="ask" type="button">提问</button>
+        <button class="ghost" id="new-thread" type="button" title="清空对话上下文">新会话</button>
+      </div>
+
+      <div id="chat-out" class="out chat"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="./app.js"></script>
+</body>
+</html>

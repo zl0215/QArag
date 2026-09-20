@@ -1,0 +1,140 @@
+[
+ {
+  "turn": 1,
+  "q": "RD-IFTSVM 对非隶属度用的是什么模糊集？",
+  "d": {
+   "thread_id": "repro-45591132",
+   "answer": "根据现有资料，RD-IFTSVM 使用的是**直觉模糊集（intuitionistic fuzzy set, IFS）**。\n\n具体依据如下：\n\n- RD-IFTSVM 的全称是\"relative density and nonmembership-based intuitionistic fuzzy twin support vector machine\"，即基于相对密度和非隶属度的**直觉模糊**孪生支持向量机 [3][5]。\n- 直觉模糊集（IFS）是对传统模糊集的推广，它同时考虑**隶属度（membership）和非隶属度（nonmembership）**两个方面 [2]。\n- 该模型提出了一种新的非隶属度函数，不同于仅利用局部信息计算非隶属度的传统直觉模糊模型，它利用两个基于比率的度量来捕捉数据的全局特征 [5]。\n\n补充说明：资料中提到的非隶属度（ν）在多数现有直觉模糊分类方法中被定义为 ν = (1 − χ)ρ [4]，但这是\"现有方法\"的定义，RD-IFTSVM 采用的是其新提出的非隶属度函数 [5]。",
+   "citations": [
+    {
+     "index": 3,
+     "chunk_id": 2030,
+     "label": "RD-IFTSVM · K. Gupta , and Shuaiyong Li · p2",
+     "quote": "ve density and nonmembership-based intuitionistic fuzzy TSVM",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "chunk_id": 2097,
+     "label": "RD-IFTSVM · VIII. CONCLUSION · p12",
+     "quote": "ensity and nonmembership-based intuitionistic fuzzy twin sup",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "chunk_id": 2023,
+     "label": "RD-IFTSVM · K. Gupta , and Shuaiyong Li · p1",
+     "quote": "zy TSVM (IFTSVM), which builds upon intuitionistic fuzzy set",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "chunk_id": 2046,
+     "label": "RD-IFTSVM · B. Comparison of the Proposed Nonmembership Function · p4-5",
+     "quote": "sting intuitionistic fuzzy-based classification methods [11]",
+     "verified": true
+    }
+   ],
+   "verified": true,
+   "route": "generate",
+   "grade_reason": "参考资料[2]明确指出IFTSVM基于直觉模糊集（IFS），该集合同时考虑隶属度和非隶属度，因此可推断RD-IFTSVM对非隶属度使用的是直觉模糊集。",
+   "retries": 0,
+   "diagnostics": {
+    "recall": {
+     "dense": 50,
+     "sparse": 4,
+     "dense_x": 50,
+     "sparse_x": 50
+    },
+    "fused": 5,
+    "returned": 5,
+    "missing_in_postgres": 0,
+    "rerank": true,
+    "rerank_candidates": 60,
+    "queries": {
+     "orig": "RD-IFTSVM 对非隶属度用的是什么模糊集？",
+     "_x": "What fuzzy set does RD-IFTSVM use for the non-membership degree?"
+    },
+    "errors": [],
+    "fresh_returned": 5,
+    "accumulated_returned": 5
+   }
+  }
+ },
+ {
+  "turn": 2,
+  "q": "那它的时间复杂度是多少？",
+  "d": {
+   "thread_id": "repro-45591132",
+   "answer": "根据参考资料，RD-IFTSVM 的整体时间复杂度为：\n\n**(IR³ + 1)O(n₁³) + O(n₂²) + O(n₂²)** [2]\n\n其中各部分的来源如下：\n\n- **求解 TSVM 中两个 QPP 的复杂度**：O(n₁³) + O(n₂³) [2]\n- **计算相对密度隶属度**：需要计算多数类中每个训练点到其第 k 个近邻的距离，复杂度为 O(n₂²) [2]\n- **非隶属度函数的计算**：主要由多数类内部两两距离的计算主导，时间复杂度为 O(n₂²) [2]\n\n符号说明：N 为训练样本总数，n₁ 为正类（少数类）样本数，n₂ 为负类（多数类）样本数，类别不平衡率 IR = n₂/n₁ [2]。\n\n与其他方法的对比：\n\n- 该方法的计算复杂度**低于 ACFTSVM**，同时与 CGFTSVM **相当** [1]。\n- ACFTSVM 的整体时间复杂度为 (IR³ + 1)O(n₁³) + O(n₂² × n_SVs) + O(k × N × n₂²) [1]。\n- CGFTSVM 对多数类样本计算广义钟形隶属度和类概率的复杂度各为 O(n₂²)，求解 QPP 的复杂度为 (1 + IR³)O(n³) [1]。",
+   "citations": [
+    {
+     "index": 3,
+     "chunk_id": 2030,
+     "label": "RD-IFTSVM · B. Experiments on UCI and KEEL Datasets · p9",
+     "quote": "ve density and nonmembership-based intuitionistic fuzzy TSVM",
+     "verified": true
+    },
+    {
+     "index": 5,
+     "chunk_id": 2097,
+     "label": "RD-IFTSVM · K. Gupta , and Shuaiyong Li · p3",
+     "quote": "ensity and nonmembership-based intuitionistic fuzzy twin sup",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "chunk_id": 2023,
+     "label": "RD-IFTSVM · B. Complexity Analysis · p8",
+     "quote": "zy TSVM (IFTSVM), which builds upon intuitionistic fuzzy set",
+     "verified": true
+    },
+    {
+     "index": 4,
+     "chunk_id": 2046,
+     "label": "RD-IFTSVM · B. Experiments on UCI and KEEL Datasets · p9",
+     "quote": "sting intuitionistic fuzzy-based classification methods [11]",
+     "verified": true
+    },
+    {
+     "index": 2,
+     "chunk_id": 2074,
+     "label": "RD-IFTSVM · B. Complexity Analysis · p8",
+     "quote": "1 2 the proposed method is (IR 3 + 1)O(n3 ) + O(n2 ) + O(n 2",
+     "verified": true
+    },
+    {
+     "index": 1,
+     "chunk_id": 2075,
+     "label": "RD-IFTSVM · B. Complexity Analysis · p8",
+     "quote": "ity of ACFTSVM is (IR 3 + 1)O(n3 1 ) + O(n 2 × ) + O(k × N ×",
+     "verified": true
+    }
+   ],
+   "verified": true,
+   "route": "generate",
+   "grade_reason": "参考资料[2]明确给出了所提模型的时间复杂度公式：(IR^3 + 1)O(n1^3) + O(n2^2) + O(n^2)，可直接回答该模型的时间复杂度。",
+   "retries": 0,
+   "diagnostics": {
+    "recall": {
+     "dense": 50,
+     "sparse": 29,
+     "dense_x": 50,
+     "sparse_x": 50
+    },
+    "fused": 5,
+    "returned": 5,
+    "missing_in_postgres": 0,
+    "rerank": true,
+    "rerank_candidates": 60,
+    "queries": {
+     "orig": "RD-IFTSVM 的时间复杂度是多少？",
+     "_x": "What is the time complexity of RD-IFTSVM?"
+    },
+    "errors": [],
+    "fresh_returned": 5,
+    "accumulated_returned": 5
+   }
+  }
+ }
+]

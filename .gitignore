@@ -1,0 +1,28 @@
+# 环境与密钥
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+
+# 数据与模型
+data/
+models/
+*.db
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+
+# 日志
+*.log
+logs/

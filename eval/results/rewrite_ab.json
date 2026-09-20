@@ -1,0 +1,42 @@
+[
+ {
+  "prompt": "current",
+  "q": "那它大概要多久算完？",
+  "rewritten": "GBSVM 中粒度球分类器大概要多久算完？"
+ },
+ {
+  "prompt": "current",
+  "q": "它的空间复杂度呢？",
+  "rewritten": "GBSVM 中粒度球分类器的空间复杂度是多少？"
+ },
+ {
+  "prompt": "current",
+  "q": "为什么能降到这么低？",
+  "rewritten": "GBSVM 中粒度球分类器的时间复杂度为什么能降到接近 O(N)？"
+ },
+ {
+  "prompt": "current",
+  "q": "这个方法用在什么数据上？",
+  "rewritten": "GBSVM 中的粒度球分类器方法用在什么数据上？"
+ },
+ {
+  "prompt": "candidate",
+  "q": "那它大概要多久算完？",
+  "rewritten": "GBSVM 里粒度球分类器的时间复杂度大概是多少？"
+ },
+ {
+  "prompt": "candidate",
+  "q": "它的空间复杂度呢？",
+  "rewritten": "GBSVM 里粒度球分类器的空间复杂度是多少？"
+ },
+ {
+  "prompt": "candidate",
+  "q": "为什么能降到这么低？",
+  "rewritten": "GBSVM 里粒度球分类器的时间复杂度为什么能降到接近 O(N)？"
+ },
+ {
+  "prompt": "candidate",
+  "q": "这个方法用在什么数据上？",
+  "rewritten": "GBSVM 里的粒度球分类器用在什么数据上？"
+ }
+]
