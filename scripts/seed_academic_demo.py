@@ -66,17 +66,17 @@ async def main() -> int:
             StudentGrade,
             [
                 {
-                    "tenant_id": 1, "student_id": STUDENT_ID,
-                    "course_code": "MATH101", "course_name": "高等数学",
-                    "credits": 60, "score": 85, "grade_point": 3.7,
-                    "status": "passed", "term": "2025-fall",
-                },
-                {
-                    "tenant_id": 1, "student_id": STUDENT_ID,
-                    "course_code": "CS101", "course_name": "程序设计",
-                    "credits": 60, "score": 90, "grade_point": 4.0,
-                    "status": "passed", "term": "2026-spring",
-                },
+                    "tenant_id": 1,
+                    "student_id": STUDENT_ID,
+                    "course_code": f"DEMO{i:03d}",
+                    "course_name": f"已修课程 {i:02d}",
+                    "credits": 3,
+                    "score": 80 + i % 10,
+                    "grade_point": 3.0 + (i % 5) * 0.2,
+                    "status": "passed",
+                    "term": "2025-fall" if i <= 20 else "2026-spring",
+                }
+                for i in range(1, 41)
             ],
             ["tenant_id", "student_id", "course_code", "term"],
         )
