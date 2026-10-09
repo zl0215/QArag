@@ -61,17 +61,12 @@ api:    [ api 容器        ]      [ embed 容器 ]
 
 **BGE = BAAI General Embedding**，智源研究院开源的中文检索模型系列。
 
-### `bge-large-zh-v1.5`（embedding，约 1.3GB）
+### `bge-m3`（embedding）
 
-- 326M 参数，输出 1024 维向量，**最大输入 512 token**
-- 中文检索榜上长期是开源第一梯队，中文语义匹配明显强于 `text-embedding-ada-002`
-- **非对称检索**：query 加 instruction 前缀 `为这个句子生成表示以用于检索相关文章：`，文档**不加**。
-  加错了会稳定掉 3~8 个点，而且不报错。代码里这个前缀只在 `aembed_query` 里加。
-
-> ⚠️ 512 token 上限是本项目的硬约束。`CHUNK_MAX_TOKENS` 配成 1024 会被 tokenizer
-> **静默截断** —— 不报错，只是后半段内容永远检索不到。代码里
-> `StructureAwareChunker` 会用模型自己的 `max_seq_length` 反过来钳制配置值，
-> 并在钳制时打警告。这是 SPEC 里列的坑之一。
+- 输出 1024 维向量，统一处理中文、英文和中英混合资料。
+- 摄取与查询必须使用同一模型版本、池化方式和归一化配置。
+- `StructureAwareChunker` 按模型实际 `max_seq_length` 限制分块上限；正式配置使用 256 token 目标长度和 384 token 最大长度。
+- 查询 instruction 由 `EMBED_QUERY_INSTRUCTION` 控制，空值表示使用模型默认输入。
 
 ### `bge-reranker-v2-m3`（reranker，约 2.3GB）
 
@@ -79,15 +74,7 @@ api:    [ api 容器        ]      [ embed 容器 ]
 - 精度比双塔向量高得多，代价是复杂度 O(N) 次前向 —— 所以只能对召回的 top-50 用，不能对全库用
 - 这就是"漏斗"结构：向量+BM25 召回 100 条 → RRF 融合 → reranker 精排 → 取 5 条
 
-**两者能不能同时部署？能。** 显存占用（fp16）：
-
-```
-embed  ~1.3GB
-rerank ~2.3GB
-合计   ~3.6GB   → 6GB 显存够用，24GB 卡绰绰有余
-```
-
-CPU 上也能跑，只是慢：bge-large-zh 编码一条 384 token 的文本约 15~30ms，reranker 对 50 条打分约 200~500ms。做演示和评测完全够，做压测不够。
+两种模型可以部署在同一推理服务。显存预算按权重精度、批大小和最大序列长度实测确定；服务启动后通过 `/health` 核对实际模型名与加载状态。
 
 ---
 
@@ -153,7 +140,7 @@ WITH_LOCAL=true docker compose up -d --build
 
 ```ini
 EMBED_PROVIDER=local
-EMBED_MODEL_PATH=/models/bge-large-zh-v1.5
+EMBED_MODEL_PATH=/models/bge-m3
 RERANK_PROVIDER=local
 RERANK_MODEL_PATH=/models/bge-reranker-v2-m3
 ```
@@ -171,7 +158,7 @@ RERANK_MODEL_PATH=/models/bge-reranker-v2-m3
 | 容器数量 | 6 | 4 |
 | 调试难度 | 多一跳网络 | 单进程，栈更短 |
 
-**面试时这是个好话题**：两种方案都实现了同一个 `EmbeddingProvider` Protocol，切换只改配置。能说清"什么时候该拆、拆的代价是什么"，比"我会用 Docker"有信息量得多。
+两种方案实现同一个 `EmbeddingProvider` Protocol，切换时只需修改配置。独立推理服务适用于权重共享和独立扩缩容；进程内模型适用于依赖更少的单机部署。
 
 ---
 
@@ -351,10 +338,10 @@ su postgres -c "psql -c \"CREATE DATABASE rag OWNER rag\""
 export HF_ENDPOINT=https://hf-mirror.com
 pip install -U "huggingface_hub[cli]"
 mkdir -p /root/autodl-tmp/models && cd /root/autodl-tmp/models
-hf download BAAI/bge-large-zh-v1.5  --local-dir bge-large-zh-v1.5
+hf download BAAI/bge-m3  --local-dir bge-m3
 hf download BAAI/bge-reranker-v2-m3 --local-dir bge-reranker-v2-m3
 cd /root/rag-agent && mkdir -p models
-ln -sfn /root/autodl-tmp/models/bge-large-zh-v1.5  models/bge-large-zh-v1.5
+ln -sfn /root/autodl-tmp/models/bge-m3  models/bge-m3
 ln -sfn /root/autodl-tmp/models/bge-reranker-v2-m3 models/bge-reranker-v2-m3
 
 # ---- 4. 起服务 ----
@@ -375,7 +362,7 @@ REPOSITORY_BACKEND=postgres
 POSTGRES_HOST=127.0.0.1
 
 EMBED_PROVIDER=local
-EMBED_MODEL_PATH=./models/bge-large-zh-v1.5
+EMBED_MODEL_PATH=./models/bge-m3
 EMBED_DEVICE=cuda
 EMBED_BATCH_SIZE=16
 
@@ -611,8 +598,8 @@ VECTOR_BACKEND=milvus DATABASE_URL='postgresql+asyncpg://rag:rag_dev_pw@localhos
         ▼              ▼
 ┌── 虚拟机 ragvm ──┐  ┌── AutoDL（RTX 2080 Ti 11G）──────┐
 │  Postgres        │  │  scripts/serve_inference.py      │
-│  Milvus standalone│  │  bge-large-zh-v1.5  (embed)      │
-│  （数据留本地）    │  │  bge-reranker-base  (rerank)     │
+│  Milvus standalone│  │  bge-m3              (embed)      │
+│  （数据留本地）    │  │  bge-reranker-v2-m3 (rerank)     │
 └──────────────────┘  │  127.0.0.1:8080，只绑回环         │
                       └──────────────────────────────────┘
 ```
@@ -663,8 +650,8 @@ RERANK_API_STYLE=tei
 
 ```bash
 ssh autodl "cd /root/rag-infer && nohup /root/miniconda3/bin/python serve_inference.py \
-  --embed-model /root/autodl-tmp/models/bge-large-zh-v1.5 \
-  --rerank-model /root/autodl-tmp/models/bge-reranker-base --port 8080 &"
+  --embed-model /root/autodl-tmp/models/bge-m3 \
+  --rerank-model /root/autodl-tmp/models/bge-reranker-v2-m3 --port 8080 &"
 ssh -N -L 8081:127.0.0.1:8080 autodl &
 curl -s http://127.0.0.1:8081/health   # 两个 true 才算好
 ```
@@ -685,7 +672,7 @@ export HF_HUB_DISABLE_XET=1     # ★ 少了它会绕过镜像直连 cas-server.
 
 ```bash
 # 从 Windows（Git Bash）
-scp -P <端口> -r "D:/PythonDemo_learn/shucang/embedding/bge-large-zh-v1.5" \
+scp -P <端口> -r "D:/PythonDemo_learn/shucang/embedding/bge-m3" \
     root@<host>:/root/rag-agent/models/
 ```
 
@@ -693,7 +680,7 @@ scp -P <端口> -r "D:/PythonDemo_learn/shucang/embedding/bge-large-zh-v1.5" \
 
 ```bash
 export HF_ENDPOINT=https://hf-mirror.com
-huggingface-cli download BAAI/bge-large-zh-v1.5 --local-dir ./models/bge-large-zh-v1.5
+huggingface-cli download BAAI/bge-m3 --local-dir ./models/bge-m3
 huggingface-cli download BAAI/bge-reranker-v2-m3 --local-dir ./models/bge-reranker-v2-m3
 ```
 
@@ -701,7 +688,7 @@ huggingface-cli download BAAI/bge-reranker-v2-m3 --local-dir ./models/bge-rerank
 
 ```
 models/
-├── bge-large-zh-v1.5/
+├── bge-m3/
 │   ├── config.json
 │   ├── pytorch_model.bin
 │   ├── tokenizer.json

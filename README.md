@@ -1,226 +1,388 @@
-# RAG-Agent
+# QArag
 
-面向 PDF / Word / Markdown 的知识库问答与教务任务服务。Pi Agent 可组合 RAG、课程、成绩、课表、考试和冲突检查工具完成多步骤任务。
+面向中文问答场景的多语言科研知识库与 Agent 服务。系统接收 PDF、DOCX 和 Markdown 文档，以 PostgreSQL 保存权威数据，以 Milvus 提供 BGE-M3 稠密向量与 BM25 稀疏检索，通过 RRF 融合、BGE 重排、证据校验和受控拒答生成可追溯答案。
 
-**技术栈**：FastAPI · LangGraph · Milvus · PostgreSQL · Neo4j · BGE · Docker
+**技术栈**：Python 3.11+ · FastAPI · LangGraph · PostgreSQL · Milvus · BGE-M3 · BGE-Reranker · Docker Compose
 
-自带一个零构建的 Web 界面（原生 HTML/CSS/JS，无 Node、无 CDN，离线可用），
-`uvicorn` 起来后直接访问 `http://127.0.0.1:8000/` 就能上传文档、看任务进度、
-做检索和问答。
+## 核心能力
 
----
+- 中文提问检索中文、英文及中英混合文档
+- PDF、DOCX、Markdown 解析与结构感知分块
+- BGE-M3 稠密召回与 Milvus BM25 稀疏召回
+- RRF 融合、跨语言查询扩展和 BGE cross-encoder 重排
+- 文档标题、章节路径、页码和原文引用追溯
+- Pi Agent 0 至多次 Tool Calling 循环
+- 无有效证据时拒答，拒答结果不附带无关引用
+- PostgreSQL 持久化会话历史、摄取任务和业务状态
+- 同步摄取与基于租约、重试的异步 Worker
+- JSON 与 SSE 两种问答响应方式
+- Web 管理界面、健康检查、就绪检查和结构化日志
 
-## 快速开始
+## 系统架构
 
-### 方式一：本地跑通（Windows / macOS，不需要 Docker）
+```mermaid
+flowchart LR
+    U[Web / API Client] --> API[FastAPI]
+    API --> H[Agent Harness]
+    H --> A[Pi Agent]
+    A -->|0..N calls| T[Tool Registry]
+    T --> SK[search_knowledge]
+    SK --> R[Retrieval Service]
+    R --> M[(Milvus)]
+    R --> P[(PostgreSQL)]
+    T --> AT[Academic Read Tools]
+    H --> V[Citation Verification]
+    V --> U
 
-只需要 Python 3.11+ 和本机的 BGE 模型：
-
-```bash
-uv venv --system-site-packages .venv     # 复用全局 torch，不重复下载 2.5GB
-uv sync --extra dev
-cp .env.example .env                      # 按需修改 EMBED_MODEL_PATH
-
-python scripts/smoke_local.py
+    D[PDF / DOCX / Markdown] --> I[Ingestion Service]
+    I --> W[Parser + Chunker]
+    W --> P
+    W --> M
 ```
 
-跑通会看到解析 → 分块 → 嵌入 → 入库 → 混合检索 → Agent 全链路，以及 4 条检索断言。
+PostgreSQL 保存文档、Chunk 正文、会话、任务和 Agent 状态。Milvus 保存可重建的稠密向量、BM25 稀疏表示及检索字段。检索命中后按 Chunk ID 回 PostgreSQL 读取权威正文。
 
-### 打开 Web 界面
+## 已验证的 RAG 流程
 
-```bash
-python scripts/run_api.py --port 8000   # 前端由 FastAPI 直接托管，不需要另起服务
-python -m rag.worker                    # 第二个终端：异步摄取队列的消费者
-# 浏览器打开 http://127.0.0.1:8000/
+### 文档摄取
+
+```text
+Upload API
+  → 文件名清理、大小限制、SHA-256 幂等校验
+  → PDF / DOCX / Markdown 解析
+  → DocNode 文档树
+  → 版面清洗与结构感知分块
+  → BGE-M3 向量化
+  → PostgreSQL 写入权威正文
+  → Milvus 写入 dense + sparse 检索数据
+  → 文档状态 ready
 ```
 
-> **嵌入和重排在 GPU 上跑**（默认形态）。`scripts/serve_inference.py` 部署在
-> AutoDL，本机通过 SSH 隧道指过去；本机进程不加载任何模型，各占 ~500MB。
-> 上传一份 2.2MB 的 PDF，本机 CPU 从 ~81s 降到 ~8s（只剩解析）。
-> 模型留在 `EMBED_PROVIDER=local` 也能跑，只是所有算力都压在本机 CPU 上。
-> 拓扑、切回去的步骤和向量一致性校验见 [docs/DEPLOY.md](docs/DEPLOY.md) 第四节末尾。
+1. `POST /api/v1/documents` 接收文件；`sync=true` 在请求内完成摄取，`sync=false` 写入 PostgreSQL 任务表。
+2. PDF 解析器按版面恢复双栏阅读顺序，处理英文空格、断词、重复页眉页脚、页码和表格边界。
+3. 解析结果转换为保留标题层级、页码和字符位置的 `DocNode` 树。
+4. 分块按章节边界执行，目标长度 256 tokens、上限 384 tokens、重叠 48 tokens；父块上限 1024 tokens。
+5. 嵌入文本包含文档标题与章节路径，降低跨文档同义段落的区分难度。
+6. PostgreSQL 与 Milvus 写入完成后，文档状态更新为 `ready`。
+7. 异步 Worker 使用 `FOR UPDATE SKIP LOCKED` 原子领取任务；失败任务按最大次数重试，租约过期后可由其他 Worker 接管。
 
-> **为什么要用 `scripts/run_api.py` 而不是 `uvicorn rag.main:app`？**
-> 只在 Windows 上有区别。uvicorn ≥0.36 的循环工厂在 win32 上硬编码
-> `ProactorEventLoop`，而 psycopg 的 async 模式跑不了它 —— 结果是多轮对话的
-> checkpointer **静默降级**，`/readyz` 只报一句 `checkpointer: off`，
-> 看着像没配。Linux（Docker / AutoDL）上两者等价，裸 uvicorn 就行。
-> 细节见 `src/rag/core/loop.py`。
+### 混合检索
 
-![问答页](docs/img/chat.png)
+```text
+Query
+  → 多轮上下文改写
+  → 中英文查询扩展
+  → Dense Top-50 ─┐
+                   ├→ RRF Top-60
+  → BM25 Top-50 ──┘
+  → 保留各召回通道头部候选
+  → BGE-Reranker-v2-M3
+  → 元数据与参考文献排序修正
+  → 多文档问题的文档多样化
+  → PostgreSQL 回表
+  → 去重与邻接上下文扩展
+  → Final Top-5
+```
 
-答案里的 `[n]` 角标可以点，会跳到下面那张引用卡片；卡片标签是
-`文档名 · 章节路径 > 小节标题`，用来核对答案到底出自哪一段。
+1. 会话问题先结合裁剪后的历史消息完成独立化改写。
+2. 中文问题面对英文候选时生成跨语言查询表达；原始查询始终保留。
+3. Dense 和 BM25 两路并行召回，默认各取 50 条。
+4. RRF 只按名次融合异构分数，默认保留 60 条候选，并保留单路强命中结果。
+5. 重排输入包含查询、文档标题、章节路径和正文；候选在同一批次内比较。
+6. 普通内容问题降低参考文献与题名页元数据排序；作者和文献信息问题保留元数据优先级。
+7. 明确要求比较多份文档时增加来源多样性。
+8. 最终结果回 PostgreSQL 读取正文，并输出来源、页码、章节和各阶段诊断字段。
 
-界面分两块，对应两条真实链路：
+### Agent 问答
 
-- **左栏 · 知识库**：拖拽上传。勾着"同步解析"就在请求里直接跑完；
-  取消勾选则走 worker 异步队列，界面会实时显示 `queued → running → succeeded`。
-- **右栏 · 检索 / 问答**：检索页每张结果卡片上有一对
-  **「稠密 #n / 稀疏 #n」**角标 —— 那是两个召回通道各自排出的名次。
-  同一张卡上两个名次差得越远，越能说明 RRF 融合在做什么。
-  三个消融开关可以现场关掉某一路，直观看到召回数量的变化。
+```text
+POST /api/v1/chat
+  → AgentHarness.run()
+  → Pi Agent: Observe / Decide
+  → 无需知识库：直接回答
+  → 需要知识库：search_knowledge(query)
+      → 现有 Retrieval Service
+      → 结构化 Tool Result
+  → Agent 再判断
+  → 继续调用 Tool 或生成答案
+  → 引用逐字校验
+  → Answer / Refuse
+```
 
-![检索页](docs/img/search-rerank.png)
+`AgentHarness` 统一管理 Agent 初始化、Tool 注册、上下文注入、超时、异常映射和最多 8 次迭代。`search_knowledge(query)` 只返回检索证据，不生成最终答案。最终答案由 Agent 基于 Tool Result 生成，并使用 `[n]` 标注来源。
 
-每张卡片右边那三个数是**三个不同的分，不要混着看**：
+会话历史保存在 PostgreSQL `messages` 表中，只向模型回传用户问题与最终答案。检索块、诊断信息和中间状态不进入长期对话历史。涉及结构化任务时，Task State 与自然语言历史分别维护。
 
-| 字段 | 含义 | 能不能判断相关性 |
+### 引用与拒答
+
+- 每条引用绑定 `chunk_id`、文档标题、章节路径、页码与原文摘录。
+- 服务端逐字检查引用摘录是否存在于声明的源 Chunk。
+- 检索证据不足、冲突未解决或知识库不存在答案时返回拒答。
+- 拒答响应的 `citations` 固定为空，防止无关召回被展示为答案依据。
+- 回答响应包含 `verified`、`route`、`grade_reason`、`retries` 和检索诊断。
+
+## 评测结果
+
+评测集包含 30 条单跳问题、10 条多跳问题和 10 条不可回答问题。检索指标统计 40 条可回答问题，检索深度为 Top-10。最终配置启用跨语言扩展、Dense、BM25、RRF 和 Reranker。
+
+| 指标 | 最初基线 | 当前结果 |
+|---|---:|---:|
+| Chunk Recall@1 | 0.150 | **0.550** |
+| Chunk Recall@5 | 0.500 | **0.950** |
+| Chunk Recall@10 | 0.625 | **0.950** |
+| Chunk MRR | 0.306 | **0.729** |
+| Document Recall@1 | — | **0.925** |
+| Document Recall@5 | 0.950 | **1.000** |
+| Document MRR | 0.772 | **0.956** |
+| 不可回答问题拒答准确率 | — | **1.000（10/10）** |
+| 可回答问题错误拒答率 | — | **0.050（2/40）** |
+| 引用逐字一致率 | — | **1.000（113/113）** |
+
+### 消融结果
+
+| 配置 | Chunk R@1 | Chunk R@5 | Chunk R@10 | Chunk MRR | Doc R@5 |
+|---|---:|---:|---:|---:|---:|
+| Full | **0.550** | **0.950** | 0.950 | **0.729** | **1.000** |
+| - Translate | 0.525 | 0.900 | **0.975** | 0.689 | **1.000** |
+| - Rerank | 0.300 | 0.725 | 0.775 | 0.507 | 0.975 |
+| - Dense | 0.500 | 0.825 | 0.850 | 0.653 | **1.000** |
+| - Sparse | 0.500 | 0.925 | 0.925 | 0.694 | **1.000** |
+| Dense Only | 0.400 | 0.825 | 0.850 | 0.580 | 0.975 |
+| Sparse Only | 0.200 | 0.600 | 0.750 | 0.372 | 0.925 |
+
+机器可读结果：
+
+- `eval/results/retrieval_v3_final.json`
+- `eval/results/chat_v3_multiturn_fix.json`
+- `eval/results/report.md`
+
+完整升级记录见 [召回率审计与升级记录](docs/RETRIEVAL_AUDIT.md)。
+
+## API
+
+| Method | Path | 功能 |
 |---|---|---|
-| `余弦` | 稠密通道的原始余弦相似度 | 弱。领域内 0.51~0.60、领域外 0.29~0.49，**区间重叠** |
-| `rrf` | RRF 融合分 | **不能**。只看名次 —— rank 1 恒为 `1/(60+1)=0.0164` |
-| `rerank` | cross-encoder 重排分 | **能**。相关 0.98 / 无关 0.0001，差三个数量级 |
+| `GET` | `/healthz` | 进程存活状态 |
+| `GET` | `/readyz` | PostgreSQL、Milvus、模型与 Checkpointer 就绪状态 |
+| `POST` | `/api/v1/documents` | 同步或异步摄取文档 |
+| `GET` | `/api/v1/documents` | 文档列表 |
+| `GET` | `/api/v1/documents/{document_id}` | 文档详情 |
+| `DELETE` | `/api/v1/documents/{document_id}` | 软删除文档及检索数据 |
+| `GET` | `/api/v1/jobs/{job_id}` | 异步摄取任务状态 |
+| `POST` | `/api/v1/retrieve` | 检索与消融开关 |
+| `POST` | `/api/v1/chat` | Agent 问答，支持 JSON 与 SSE |
 
-> 这也是本项目最容易踩的坑：拿 `rrf` 当相关性分看，会以为"不相关的内容也被排在第一位"
-> —— 它本来就只表达名次。**重排分才是那个能判"像不像"的量。**
+### 检索请求
 
-> **上传后一直停在 `queued`？** 说明没有 worker 在消费队列。
-> 两个原因：`REPOSITORY_BACKEND=memory`（根本没有任务表），或者 worker 进程没起。
-> 界面会在 15 秒后把这张卡片标成"疑似卡住"并直接给出这两条排查方向 ——
-> 默认情况下"正在处理"和"卡死了"长得一模一样，这是本项目最容易卡住的地方。
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/retrieve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "这组实验的主要结论是什么？",
+    "top_k": 5,
+    "use_dense": true,
+    "use_sparse": true,
+    "use_rerank": true,
+    "use_translate": true
+  }'
+```
 
-界面支持深链，演示时甩一条链接过去就行，不用现场打字：
+### Agent 问答请求
 
-| 链接 | 效果 |
-|---|---|
-| `/?q=隧道断了什么表现` | 直接跑检索并出结果 |
-| `/?tab=chat&ask=隧道断了什么表现` | 直接切到问答页并把问题发出去 |
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "比较两篇文档的方法与实验结论，并给出来源。",
+    "thread_id": "research-session-001",
+    "top_k": 5,
+    "stream": false
+  }'
+```
 
-### 方式二：Docker 一键起（Ubuntu 服务器 / 虚拟机）
+### SSE 问答请求
+
+```bash
+curl -N -X POST http://127.0.0.1:8000/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "question": "总结文档中的研究限制。",
+    "thread_id": "research-session-001",
+    "stream": true
+  }'
+```
+
+SSE 事件顺序为 `start`、`citations`、`delta`、`done`；异常时返回 `error`。
+
+## 部署
+
+### Docker Compose
 
 ```bash
 cp .env.example .env
 docker compose up -d --build
+curl http://127.0.0.1:8000/healthz
+curl http://127.0.0.1:8000/readyz
 ```
 
-模型权重放在 `./models/`（不进镜像、不进 git）：
+默认启动 PostgreSQL、Milvus、API 和 Worker。模型目录通过只读卷挂载：
 
-```
+```text
 models/
 ├── bge-m3/
 └── bge-reranker-v2-m3/
 ```
 
-完整的部署方案、GPU 配置、AutoDL 注意事项见 **[docs/DEPLOY.md](docs/DEPLOY.md)**。
+启用独立模型服务：
 
----
+```bash
+docker compose --profile models up -d --build
+```
 
-## 文档
+启用 Neo4j：
+
+```bash
+docker compose --profile graph up -d --build
+```
+
+PostgreSQL、Milvus、模型服务和 Neo4j 的宿主机端口均绑定至 `127.0.0.1`。外部访问由反向代理统一接入。
+
+### 本地运行
+
+```bash
+uv venv --system-site-packages .venv
+uv sync --extra dev
+cp .env.example .env
+
+python scripts/run_api.py --port 8000
+python -m rag.worker
+```
+
+Windows 使用 `scripts/run_api.py` 设置与 psycopg async 兼容的事件循环。Linux 可直接启动：
+
+```bash
+uvicorn rag.main:app --host 0.0.0.0 --port 8000
+```
+
+Web 界面地址：`http://127.0.0.1:8000/`
+
+完整部署步骤见 [部署手册](docs/DEPLOY.md)。
+
+## 配置
+
+| 配置 | 默认值 | 作用 |
+|---|---|---|
+| `REPOSITORY_BACKEND` | `postgres` | 权威数据与任务仓储 |
+| `MILVUS_COLLECTION` | `rag_chunks` | 正式读取的向量集合 |
+| `EMBED_PROVIDER` | `local` | `local`、`api` 或 `none` |
+| `EMBED_MODEL_ID` | `BAAI/bge-m3` | 稠密嵌入模型 |
+| `RERANK_PROVIDER` | `none` | 本地或 API 重排服务 |
+| `RERANK_API_MODEL` | `BAAI/bge-reranker-v2-m3` | 重排模型 |
+| `LLM_PROVIDER` | `none` | OpenAI 兼容生成服务 |
+| `CHUNK_TARGET_TOKENS` | `256` | 目标 Chunk 长度 |
+| `CHUNK_MAX_TOKENS` | `384` | Chunk 最大长度 |
+| `CHUNK_OVERLAP_TOKENS` | `48` | 相邻 Chunk 重叠 |
+| `RETRIEVE_DENSE_TOP_K` | `50` | Dense 候选数 |
+| `RETRIEVE_SPARSE_TOP_K` | `50` | BM25 候选数 |
+| `RETRIEVE_FUSED_TOP_K` | `60` | RRF 后候选数 |
+| `RETRIEVE_FINAL_TOP_K` | `5` | 最终证据数 |
+| `RRF_K` | `60` | RRF 常数 |
+| `AGENT_MAX_ITERATIONS` | `8` | 单轮最大 Tool Loop 次数 |
+| `AGENT_TOOL_TIMEOUT_SECONDS` | `120` | Tool 调用超时 |
+
+完整配置项见 [.env.example](.env.example)。
+
+## 测试与验收
+
+```bash
+uv sync --extra dev
+uv run pytest
+uv run ruff check .
+python scripts/smoke_local.py
+```
+
+测试覆盖：
+
+- 问候场景 0 次 RAG Tool 调用
+- 知识问题 1 次 RAG Tool 调用
+- 多步骤任务多次 Tool 调用
+- 知识库无答案时受控拒答
+- Tool 超时、失败与最大迭代保护
+- 多轮历史加载与线程隔离
+- Task State 更新、冲突检测与恢复
+- 结构化检索结果和引用字段
+
+Worker 与基础设施验收：
+
+```bash
+python scripts/smoke_worker.py
+python scripts/smoke_worker_pg.py
+python scripts/smoke_milvus_lite.py
+```
+
+## 数据一致性与恢复
+
+- PostgreSQL 是文档正文、会话、任务和业务状态的权威存储。
+- Milvus 是可按 PostgreSQL 数据重建的检索读模型。
+- 文档以内容 SHA-256 作为摄取幂等键。
+- Chunk 与文档软删除状态在 PostgreSQL 回表时再次过滤。
+- Worker 通过数据库行锁领取任务，通过租约恢复异常中断任务。
+- 新索引使用新集合离线构建，验证通过后切换 `MILVUS_COLLECTION`。
+- 回滚通过恢复上一集合名称并重启 API 与 Worker 完成。
+
+## 项目结构
+
+```text
+src/rag/
+├── agent/       Pi Agent、Tools、Harness、Prompts、Task State、LangGraph
+├── api/         FastAPI 路由、Pydantic 契约、Web 静态资源
+├── chunking/    结构感知分块与 token 计数
+├── core/        配置、日志、错误类型、事件循环
+├── infra/       PostgreSQL、Milvus、仓储与读模型
+├── parsers/     PDF、DOCX、Markdown 与表格解析
+├── providers/   Embedding、Reranker、LLM 的 local/api/none 实现
+├── schemas/     DocNode、Chunk、Citation 数据结构
+├── services/    摄取、检索、融合、翻译和结构化查询
+└── worker/      PostgreSQL 异步摄取消费者
+eval/            评测集、评测脚本与机器可读结果
+scripts/         启动、重建索引、推理服务与 Smoke Test
+tests/           Agent V1/V2 回归测试
+```
+
+## Roadmap
+
+### P0：发布基线
+
+- [ ] 接入认证与租户授权，由服务端注入用户身份和数据范围
+- [ ] 使用 Alembic 管理文档、会话、任务和业务表迁移
+- [ ] 将 SSE 升级为模型 Token 与 Tool Event 原生流式输出
+- [ ] 接入 OpenTelemetry Trace、Prometheus 指标与告警规则
+- [ ] 增加 API 限流、请求幂等键和审计事件
+- [ ] 建立 PostgreSQL、Milvus 的自动备份与恢复演练
+
+### P1：通用科研问答
+
+- [ ] 建立覆盖医学、生命科学、计算机、工程、法学和人文的独立评测集
+- [ ] 增加扫描 PDF OCR、公式、图注和复杂表格语义抽取
+- [ ] 增加 Claim 级证据蕴含校验与冲突证据展示
+- [ ] 按语言和学科校准 Reranker 阈值与拒答阈值
+- [ ] 增加 DOI、作者、机构和参考文献的规范化与去重
+- [ ] 增加跨文档研究方法、数据集与结论对齐
+
+### P2：稳定性与规模
+
+- [ ] 完成并发摄取、长文档问答和多轮会话负载测试
+- [ ] 增加 Worker 卡死检测、死信任务和人工重放入口
+- [ ] 增加向量集合版本注册、灰度切换与自动回滚
+- [ ] 增加检索漂移、索引新鲜度和引用失败率监控
+- [ ] 在单 Agent 指标稳定后引入 Supervisor/Worker 协作模式
+
+## 项目文档
 
 | 文档 | 内容 |
 |---|---|
-| [docs/RETRIEVAL_AUDIT.md](docs/RETRIEVAL_AUDIT.md) | 召回率根因、BGE-M3 双索引升级、前后评测与回滚说明 |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | 部署方案：模型跑在哪、GPU、AutoDL、上线检查清单 |
-| [docs/SPEC.md](docs/SPEC.md) | 完整技术规格：数据模型、分块策略、检索、接口、NFR、风险登记 |
-| [docs/INTERNSHIP.md](docs/INTERNSHIP.md) | 求职版本：四周计划、JD 关键词映射、消融实验、面试问答 |
-| [docs/RESUME.md](docs/RESUME.md) | STAR 简历条目 + 实测数字的复现方式（**可写的 / 还不能写的分开列**）|
-| [docs/RAG_PROJECT_CASE_STUDY.md](docs/RAG_PROJECT_CASE_STUDY.md) | 完整项目复盘：问题、根因、解决方案、证据、责任边界与优化路线 |
-| [docs/AGENT_V1.md](docs/AGENT_V1.md) | RAG → Agent Tool V1：代码审计、调用链、启动、测试、Demo 与限制 |
-| [docs/AGENT_V2.md](docs/AGENT_V2.md) | 教务 Agent V2：多 Tool Loop、Task State、多轮任务、错误恢复与 Demo |
-
----
-
-## 架构
-
-```
-                    ┌──────────────┐
-   PDF/Word/MD ───→ │  解析器       │ → DocNode 树（标题层级/页码/字符偏移）
-                    └──────┬───────┘
-                           ↓
-                    ┌──────────────┐
-                    │ 结构感知分块  │ 表格/代码保持原子，章节边界强制切断
-                    └──────┬───────┘
-                           ↓
-              ┌────────────┴────────────┐
-              ↓                         ↓
-      ┌───────────────┐         ┌──────────────┐
-      │  PostgreSQL   │         │   Milvus     │
-      │  正文权威存储  │         │ 稠密+BM25稀疏 │
-      │  + 任务表      │         │ + 标量索引    │
-      └───────┬───────┘         └──────┬───────┘
-              └────────────┬───────────┘
-                           ↓
-                    ┌──────────────┐
-      query ──────→ │  混合检索     │ 稠密 + BM25 → RRF 融合 → 重排 → top-k
-                    └──────┬───────┘
-                           ↓
-                    ┌──────────────┐
-                    │ Pi Agent     │ Observe → Decide → 0..N Tools → Evaluate
-                    └──────┬───────┘
-                           ↓
-                    ┌──────────────┐
-                    │ Harness      │ Task State · 错误恢复 · 8 轮上限 · 引用校验
-                    └──────────────┘
-```
-
-工具包括 `search_knowledge`、`search_courses`、`query_grades`、`query_schedule`、
-`query_exam` 和 `check_schedule_conflict`。原有 LangGraph RAG 图仍保留，可供旧链路、
-对照实验和后续节点复用；`/api/v1/chat` 由 `AgentHarness` 统一驱动。运行 Agent 验收：
-
-```bash
-uv run pytest
-```
-
----
-
-## 三个设计取舍
-
-**① 混合检索，而不是纯向量。**
-稠密向量对专有名词、型号、条款编号几乎无感（训练时没见过，会被平均掉），BM25 恰好补这一块；反过来 BM25 处理不了同义改写。两者互补。融合用 RRF 而不是加权求和 —— 余弦分和 BM25 分量纲不同，归一化对异常值极其敏感，而 RRF 只看名次，免调参。
-
-**② PostgreSQL 任务表，而不是 Celery + Redis。**
-`SELECT ... FOR UPDATE SKIP LOCKED` 提供原子领取、崩溃后重领、幂等重试，一张表替代一套中间件。代价是没有优先级队列和定时任务 —— 那些场景才需要上 Celery。
-
-**③ 模型通过 Protocol 抽象，local / api / none 自由切换。**
-`EMBED_PROVIDER=local` 是模型跑在 API 进程里，`=api` 是跑在独立推理服务里。**两者都可以完全离线**。切换只改配置，检索层代码一行不动 —— 消融实验的基线组和实验组因此走的是同一条代码路径。
-
----
-
-## 目录结构
-
-```
-src/rag/
-├── core/        配置、结构化日志（含脱敏）、错误类型
-├── schemas/     DocNode / Chunk / Citation
-├── parsers/     PDF / DOCX / Markdown → DocNode 树
-├── chunking/    结构感知分块 + token 计数
-├── providers/   embedding / reranker / llm 的多实现
-├── infra/       Postgres ORM、Milvus、教务读模型、Task State、仓储
-├── services/    教务查询、摄取管道、检索管道、RRF 融合
-├── agent/       Pi Agent、六个 Tool、Task State、Harness、Prompt、保留的 LangGraph
-├── worker/      后台摄取进程（python -m rag.worker）
-└── api/         HTTP 路由 + static/（Web 界面，由 FastAPI 直接托管）
-scripts/
-├── smoke_local.py     不需要 Docker 的端到端验收
-├── smoke_worker.py    任务生命周期（重试/租约/越界），不需要 Postgres
-├── smoke_worker_pg.py 任务队列的裸 SQL 验证，需要真 Postgres
-├── smoke_milvus_lite.py  Milvus Lite 能力探测
-├── shot_ui.py         改完界面后截图验收（走 CDP，能等流式问答渲染完）
-├── serve_inference.py GPU 推理服务：TEI 兼容的 /embed 与 /rerank（跑在 AutoDL）
-├── seed_academic_demo.py V2 教务 Demo 数据（幂等写入 PostgreSQL）
-└── setup_autodl.sh    AutoDL 一键初始化
-```
-
----
-
-## 常见问题
-
-**检索结果里没有我上传的内容？**
-先确认文档状态是 `ready`（不是 `failed` / `needs_ocr`）。扫描版 PDF 没有文本层，一期不支持 OCR。
-
-**`Embedding 模型加载失败`？**
-`EMBED_MODEL_PATH` 必须指向包含 `config.json` 和 `pytorch_model.bin` 的**目录**，不是文件。
-
-**Milvus 反复重启？**
-`grep -m1 -o avx2 /proc/cpuinfo` —— 没有输出说明 CPU 不支持 AVX2，Milvus 无法运行。
-
-**改分块参数后检索结果没变？**
-`CHUNKER_VERSION` 必须同步 bump，否则增量索引会复用旧块。
-
-**传了 `sync=false`，文档一直停在 `pending`？**
-任务写进了 `jobs` 表但没人消费 —— worker 没跑。`python -m rag.worker` 起一个，
-或者本地就先用默认的 `sync=true`。细节见 [docs/DEPLOY.md](docs/DEPLOY.md) 第六节。
-
-**worker 起来了但一直空转，日志里什么都没有？**
-多半是 `REPOSITORY_BACKEND=memory` —— 独立进程看不见 API 进程里的内存队列。
-启动时应该已经被拦下来了，如果没有，检查这条配置。
+| [召回率审计与升级记录](docs/RETRIEVAL_AUDIT.md) | 解析、分块、跨语言、融合、重排、拒答与评测结果 |
+| [部署手册](docs/DEPLOY.md) | 本地、Docker、GPU 推理服务、运维与故障恢复 |
+| [系统架构](docs/ARCHITECTURE.md) | 组件职责、数据流和存储边界 |
+| [Agent V1](docs/AGENT_V1.md) | RAG Tool、最小循环与 Harness |
+| [Agent V2](docs/AGENT_V2.md) | 多 Tool Loop、Task State 与多轮任务 |

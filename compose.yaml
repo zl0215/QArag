@@ -14,7 +14,7 @@
 #   milvus     ~1.5GB / ~3-4GB    ← 单容器（内嵌 etcd + 本地存储）
 #   neo4j      ~1.2GB / ~1.6GB    ← 默认不启动
 #   api+worker ~350MB / ~900MB    （模型在进程内时，再加 ~1.5GB 权重）
-#   embed      ~200MB / ~1.5GB    ← 加载 bge-large-zh 后
+#   embed      按 BGE-M3 的权重精度、批大小和序列长度预留
 #   rerank     ~200MB / ~2.5GB    ← 加载 bge-reranker-v2-m3 后
 #
 # ★ 前置检查：CPU 必须支持 AVX2，否则 Milvus 会 Illegal instruction 崩溃重启
@@ -40,7 +40,7 @@ x-app: &app
     MILVUS_URI: http://milvus:19530
     NEO4J_URI: bolt://neo4j:7687
     # 模型目录由 compose 挂载，.env 里的 Windows 路径在容器里不存在
-    EMBED_MODEL_PATH: /models/bge-large-zh-v1.5
+    EMBED_MODEL_PATH: /models/bge-m3
     RERANK_MODEL_PATH: /models/bge-reranker-v2-m3
     # 走独立推理服务时的地址（profile: models）
     EMBED_API_BASE: http://embed:80
@@ -144,7 +144,7 @@ services:
     #   --max-client-batch-size 要和应用的 EMBED_BATCH_SIZE 对齐，
     #   否则大批量入库时会被服务端拒绝（413）。
     command:
-      - "--model-id=/models/bge-large-zh-v1.5"
+      - "--model-id=/models/bge-m3"
       - "--port=80"
       - "--max-client-batch-size=64"
       - "--auto-truncate"                  # 超过模型上限时截断而不是报错
