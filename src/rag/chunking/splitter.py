@@ -152,6 +152,7 @@ class StructureAwareChunker:
                 table_rows=node.table_cells if node.type is NodeType.TABLE else None,
                 code_lang=node.code_lang,
                 tokens=self.counter.count(text),
+                extra={"extraction_method": node.extraction_method},
             ))
 
         return units
@@ -197,6 +198,9 @@ class StructureAwareChunker:
             #   这是分块器最容易漏、后果又最隐蔽的一条约束：
             #   检索质量看起来正常，只是引用的出处是错的。
             if buf and buf[-1].section_path != unit.section_path:
+                flush()
+            if (buf and buf[-1].extra.get("extraction_method")
+                    != unit.extra.get("extraction_method")):
                 flush()
 
             if buf and buf_tokens + unit.tokens > self.target_tokens:

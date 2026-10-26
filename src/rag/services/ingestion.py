@@ -15,16 +15,18 @@
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from rag.core.errors import IngestionError
+from rag.core.errors import IngestionError, NeedsOCRError
 from rag.core.logging import get_logger
 from rag.infra.models import DocStatus
 from rag.infra.repository import DocumentRecord, Repository
 from rag.infra.vectorstore import VectorRecord, VectorStore
 from rag.parsers.base import _sha256_file, parse_document
+from rag.parsers.ocr import OCRConfig
 from rag.providers.base import EmbeddingProvider
 
 logger = get_logger(__name__)
@@ -70,6 +72,7 @@ class IngestionService:
         chunker_version: str = "v1",
         embed_batch_size: int = EMBED_BATCH_SIZE,
         tenant_id: int = 1,
+        ocr: OCRConfig | None = None,
     ) -> None:
         self.repo = repository
         self.store = store
@@ -78,6 +81,7 @@ class IngestionService:
         self.chunker_version = chunker_version
         self.embed_batch_size = embed_batch_size
         self.tenant_id = tenant_id
+        self.ocr = ocr
 
     # ==================================================================
     async def ingest_file(
@@ -96,6 +100,7 @@ class IngestionService:
         raw_hash = _sha256_file(path)
 
         # ---- 幂等短路 ----
+        existing = None
         if not force:
             existing = await self.repo.find_document_by_hash(raw_hash, self.tenant_id)
             if existing and existing.status == DocStatus.READY:
@@ -106,25 +111,33 @@ class IngestionService:
                     page_count=existing.page_count or 0, lang=existing.lang,
                 )
 
-        doc = await self.repo.create_document(
-            tenant_id=self.tenant_id,
-            # ★ 标题优先取 source_uri（用户上传时的原始文件名），最后才退回 path.stem。
-            #   不能直接用 path.stem：上传时文件是存成 `data/uploads/<8位uuid>_原名.md` 的，
-            #   于是标题会变成 `d06dfdbd_ragtest` —— 把内部存储的实现细节泄漏到了界面上。
-            title=title or _title_from(source_uri) or path.stem,
-            source_uri=source_uri or str(path),
-            mime_type="application/octet-stream",     # 解析后回填真实类型
-            content_hash=raw_hash,
-            size_bytes=path.stat().st_size,
-            status=DocStatus.PARSING,
-        )
+        if existing and existing.status in {DocStatus.NEEDS_OCR, DocStatus.FAILED}:
+            await self.repo.update_document(
+                existing.id, status=DocStatus.PARSING, error_message=None, progress=0
+            )
+            doc = existing
+        else:
+            doc = await self.repo.create_document(
+                tenant_id=self.tenant_id,
+                title=title or _title_from(source_uri) or path.stem,
+                source_uri=source_uri or str(path),
+                mime_type="application/octet-stream",
+                content_hash=raw_hash,
+                size_bytes=path.stat().st_size,
+                status=DocStatus.PARSING,
+            )
 
         try:
             return await self._run(doc, path, started)
         except Exception as exc:
-            logger.exception("ingest.failed", document_id=doc.id)
+            if isinstance(exc, NeedsOCRError):
+                logger.warning("ingest.needs_ocr", document_id=doc.id,
+                               pages=exc.extensions.get("pages"),
+                               reason=exc.extensions.get("reason"))
+            else:
+                logger.exception("ingest.failed", document_id=doc.id)
             await self.repo.update_document(
-                doc.id, status=DocStatus.FAILED,
+                doc.id, status=DocStatus.NEEDS_OCR if isinstance(exc, NeedsOCRError) else DocStatus.FAILED,
                 error_message=f"{type(exc).__name__}: {exc}"[:2000],
             )
             raise
@@ -134,8 +147,9 @@ class IngestionService:
         warnings: list[str] = []
 
         # ---- 1. 解析 ----
-        parsed = parse_document(
-            path, doc_id=str(doc.id), file_name=path.name, sha256=doc.content_hash
+        parsed = await asyncio.to_thread(
+            parse_document, path, doc_id=str(doc.id), file_name=path.name,
+            sha256=doc.content_hash, ocr=self.ocr,
         )
         meta = parsed.meta
         warnings.extend(meta.parse_warnings or [])
@@ -143,6 +157,10 @@ class IngestionService:
             doc.id, mime_type=meta.mime, parser=meta.parser, lang=meta.lang,
             page_count=meta.page_count, text_hash=meta.sha256_text,
             title=doc.title or meta.title, progress=30,
+            extra={
+                "ocr_pages": meta.ocr_pages, "blank_pages": meta.blank_pages,
+                "ocr_stats": meta.ocr_stats, "parse_warnings": meta.parse_warnings,
+            },
             status=DocStatus.CHUNKING,
         )
         if not parsed.nodes:

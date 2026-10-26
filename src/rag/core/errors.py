@@ -74,6 +74,10 @@ class QuotaExceededError(DomainError):
     status, type_slug, title = 429, "quota-exceeded", "Quota exceeded"
 
 
+class NeedsOCRError(UnprocessableDocumentError):
+    type_slug, title = "needs-ocr", "Document requires OCR"
+
+
 # ---------------- 5xx ----------------
 class ServiceUnavailableError(DomainError):
     status, type_slug, title = 503, "service-unavailable", "Service unavailable"

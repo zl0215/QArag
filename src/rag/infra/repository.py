@@ -58,6 +58,7 @@ class DocumentRecord:
     lang: str | None = None
     page_count: int | None = None
     created_at: dt.datetime = field(default_factory=lambda: dt.datetime.now(dt.UTC))
+    extra: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -76,6 +77,9 @@ class ChunkRecord:
     token_count: int = 0
     doc_title: str = ""
     version: int = 1
+
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
 
 
 @dataclass
@@ -344,6 +348,7 @@ class MemoryRepository:
                     token_count=chunk.token_count,
                     doc_title=title,
                     version=version,
+                    **_extraction_info(chunk.page_start, chunk.page_end, doc.extra if doc else {}),
                 )
                 ids.append(self._chunk_seq)
             return ids
@@ -738,7 +743,7 @@ class PostgresRepository:
             return []
         async with self._db.session() as session:
             rows = (await session.execute(
-                select(ChunkModel, Document.title)
+                select(ChunkModel, Document.title, Document.extra)
                 .join(Document, Document.id == ChunkModel.document_id)
                 .where(
                     ChunkModel.id.in_(chunk_ids),
@@ -747,7 +752,7 @@ class PostgresRepository:
                 )
             )).all()
             by_id = {
-                chunk.id: _to_chunk_record(chunk, title) for chunk, title in rows
+                chunk.id: _to_chunk_record(chunk, title, extra) for chunk, title, extra in rows
             }
             # 保持传入顺序（即相关性顺序）
             return [by_id[c] for c in chunk_ids if c in by_id]
@@ -761,7 +766,7 @@ class PostgresRepository:
 
         async with self._db.session() as session:
             rows = (await session.execute(
-                select(ChunkModel, Document.title)
+                select(ChunkModel, Document.title, Document.extra)
                 .join(Document, Document.id == ChunkModel.document_id)
                 .where(
                     ChunkModel.document_id == document_id,
@@ -770,7 +775,7 @@ class PostgresRepository:
                     ChunkModel.deleted_at == EPOCH_ZERO,
                 ).order_by(ChunkModel.chunk_index)
             )).all()
-            return [_to_chunk_record(chunk, title) for chunk, title in rows]
+            return [_to_chunk_record(chunk, title, extra) for chunk, title, extra in rows]
 
     async def count_chunks(self, tenant_id: int = DEFAULT_TENANT_ID) -> int:
         from sqlalchemy import func, select
@@ -1216,17 +1221,34 @@ def _to_document_record(doc) -> DocumentRecord:  # noqa: ANN001
         chunk_count=doc.chunk_count, error_message=doc.error_message, parser=doc.parser,
         lang=doc.lang, page_count=doc.page_count,
         created_at=doc.created_at or _EPOCH,
+        extra=doc.extra or {},
     )
 
 
-def _to_chunk_record(chunk, title: str) -> ChunkRecord:  # noqa: ANN001
+def _to_chunk_record(chunk, title: str, extra: dict | None = None) -> ChunkRecord:  # noqa: ANN001
     return ChunkRecord(
         chunk_id=chunk.id, document_id=chunk.document_id, chunk_index=chunk.chunk_index,
         content=chunk.content, parent_index=chunk.parent_index,
         page_start=chunk.page_start or 0, page_end=chunk.page_end or 0,
         section_path=chunk.section_path or "", node_type=chunk.node_type,
         token_count=chunk.token_count, doc_title=title or "", version=chunk.version,
+        **_extraction_info(chunk.page_start or 0, chunk.page_end or 0, extra or {}),
     )
+
+
+def _extraction_info(start: int, end: int, extra: dict) -> dict:
+    ocr_pages = set(extra.get("ocr_pages") or [])
+    pages = set(range(start, max(start, end) + 1))
+    matches = pages & ocr_pages
+    confidences = [
+        extra.get("ocr_stats", {}).get(str(page), {}).get("mean_confidence")
+        for page in matches
+    ]
+    confidences = [value for value in confidences if value is not None]
+    return {
+        "extraction_method": ("ocr" if matches == pages else "mixed") if matches else "native",
+        "ocr_confidence": min(confidences) if confidences else None,
+    }
 
 
 def _to_job_record(job) -> JobRecord:  # noqa: ANN001

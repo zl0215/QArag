@@ -8,6 +8,7 @@
 
 - 中文提问检索中文、英文及中英混合文档
 - PDF、DOCX、Markdown 解析与结构感知分块
+- 扫描 PDF 本地 OCR、混合文档逐页检测、置信度过滤与页码追溯
 - BGE-M3 稠密召回与 Milvus BM25 稀疏召回
 - RRF 融合、跨语言查询扩展和 BGE cross-encoder 重排
 - 文档标题、章节路径、页码和原文引用追溯
@@ -65,6 +66,29 @@ Upload API
 5. 嵌入文本包含文档标题与章节路径，降低跨文档同义段落的区分难度。
 6. PostgreSQL 与 Milvus 写入完成后，文档状态更新为 `ready`。
 7. 异步 Worker 使用 `FOR UPDATE SKIP LOCKED` 原子领取任务；失败任务按最大次数重试，租约过期后可由其他 Worker 接管。
+
+### 扫描 PDF
+
+```text
+PDF Page
+  → 文本层与页面图像检测
+  → 原生文本页：pdfplumber
+  → 扫描页：限像素渲染 → RapidOCR / ONNX Runtime → 文本框与置信度
+  → 双栏阅读顺序恢复
+  → DocNode（原始页码、bbox、extraction_method）
+  → 结构感知分块
+  → 现有 PostgreSQL / Milvus / Agent 链路
+```
+
+OCR 支持中文和英文印刷体，按页保留原生文本，过滤低置信文本框，并检测空白扫描页。缺少模型、识别失败、质量不足或超过处理上限时，文档状态为 `needs_ocr`，上传接口返回 HTTP 422。原生文本与 OCR 文本分别分块。
+
+```bash
+uv sync --extra dev --extra ocr
+uv run --extra ocr python scripts/setup_ocr.py
+uv run --extra dev --extra ocr python eval/smoke_scanned_pdf.py
+```
+
+检索结果与引用增加 `extraction_method`、`ocr_confidence`；文档详情增加 `ocr_pages`、`parse_warnings`。已有 API 路径保持不变。配置、容器部署、重新摄取与验收见 [扫描 PDF 处理手册](docs/SCANNED_PDF.md)。
 
 ### 混合检索
 
@@ -363,7 +387,9 @@ tests/           Agent V1/V2 回归测试
 ### P1：通用科研问答
 
 - [ ] 建立覆盖医学、生命科学、计算机、工程、法学和人文的独立评测集
-- [ ] 增加扫描 PDF OCR、公式、图注和复杂表格语义抽取
+- [x] 扫描 PDF OCR、混合文档逐页检测与页码追溯
+- [ ] 扩展低清、手写、复杂旋转扫描件的独立评测
+- [ ] 增加公式、图注和复杂表格语义抽取
 - [ ] 增加 Claim 级证据蕴含校验与冲突证据展示
 - [ ] 按语言和学科校准 Reranker 阈值与拒答阈值
 - [ ] 增加 DOI、作者、机构和参考文献的规范化与去重
@@ -383,6 +409,7 @@ tests/           Agent V1/V2 回归测试
 |---|---|
 | [召回率审计与升级记录](docs/RETRIEVAL_AUDIT.md) | 解析、分块、跨语言、融合、重排、拒答与评测结果 |
 | [部署手册](docs/DEPLOY.md) | 本地、Docker、GPU 推理服务、运维与故障恢复 |
+| [扫描 PDF 处理手册](docs/SCANNED_PDF.md) | OCR 安装、逐页处理、置信度、故障状态与验收 |
 | [系统架构](docs/ARCHITECTURE.md) | 组件职责、数据流和存储边界 |
 | [Agent V1](docs/AGENT_V1.md) | RAG Tool、最小循环与 Harness |
 | [Agent V2](docs/AGENT_V2.md) | 多 Tool Loop、Task State 与多轮任务 |

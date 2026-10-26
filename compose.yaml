@@ -30,6 +30,7 @@ x-app: &app
       # true  = 进程内加载 BGE（镜像 ~2.2GB）
       # false = 纯 API 模式，模型交给 embed/rerank 服务（镜像 ~450MB）
       WITH_LOCAL: "${WITH_LOCAL:-true}"
+      WITH_OCR: "${WITH_OCR:-true}"
       BASE_IMAGE: "${BASE_IMAGE:-python:3.12-slim}"
       TORCH_INDEX_URL: "${TORCH_INDEX_URL:-https://download.pytorch.org/whl/cpu}"
   env_file: [.env]
@@ -42,6 +43,7 @@ x-app: &app
     # 模型目录由 compose 挂载，.env 里的 Windows 路径在容器里不存在
     EMBED_MODEL_PATH: /models/bge-m3
     RERANK_MODEL_PATH: /models/bge-reranker-v2-m3
+    PDF_OCR_MODEL_DIR: /models/ocr
     # 走独立推理服务时的地址（profile: models）
     EMBED_API_BASE: http://embed:80
     RERANK_API_BASE: http://rerank:80

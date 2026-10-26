@@ -44,6 +44,7 @@ from rag.infra.repository import (
     Repository,
     new_worker_id,
 )
+from rag.parsers.ocr import OCRConfig
 from rag.providers import build_embedding_provider
 from rag.services.ingestion import IngestionService
 
@@ -177,6 +178,7 @@ class Worker:
             embedder=self.embedder,
             chunker=chunker,
             chunker_version=settings.chunker_version,
+            ocr=OCRConfig.from_settings(settings),
         )
 
         await self._wait_for_dependencies(attempts=attempts, delay_seconds=delay_seconds)

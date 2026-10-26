@@ -143,13 +143,24 @@ class Settings(BaseSettings):
     llm_max_tokens: int = 2048
     llm_timeout_seconds: int = 120
 
+    # ---------------- 扫描 PDF OCR ----------------
+    pdf_ocr_mode: Literal["auto", "off", "force"] = "auto"
+    pdf_ocr_model_dir: Path = Path("./models/ocr")
+    pdf_ocr_dpi: int = Field(default=200, ge=72, le=400)
+    pdf_ocr_min_text_chars: int = Field(default=40, ge=1, le=1000)
+    pdf_ocr_min_confidence: float = Field(default=0.6, ge=0, le=1)
+    pdf_ocr_max_rejected_ratio: float = Field(default=0.3, ge=0, le=1)
+    pdf_ocr_max_pages: int = Field(default=100, ge=1, le=10000)
+    pdf_ocr_max_pixels: int = Field(default=12000000, ge=100000, le=40000000)
+    pdf_ocr_threads: int = Field(default=2, ge=1, le=16)
+
     # ---------------- 分块 ----------------
     chunk_target_tokens: int = 256
     chunk_max_tokens: int = 384
     chunk_overlap_tokens: int = 48
     parent_target_tokens: int = 1024
     # 分块逻辑或参数变更时必须 bump，否则增量索引会错误复用旧块
-    chunker_version: str = "v2-layout-multilingual"
+    chunker_version: str = "v4-layout-ocr"
 
     # ---------------- 检索 ----------------
     retrieve_dense_top_k: int = 50

@@ -27,6 +27,7 @@ ARG BASE_IMAGE=python:3.12-slim
 FROM ${BASE_IMAGE} AS builder
 
 ARG WITH_LOCAL=false
+ARG WITH_OCR=false
 # torch wheel 源。★ 必须在这里注入，不能写进 pyproject.toml ——
 # 写进 [tool.uv.sources] 会让 uv 每次解析都去访问 download.pytorch.org，
 # 国内网络下即使根本不安装 torch 也会卡住十几分钟。
@@ -68,6 +69,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     else \
         echo ">>> 纯 API 模式，不安装本地模型栈"; \
         uv sync --no-install-project --no-dev; \
+    fi
+
+# OCR runs on CPU independently of the embedding provider.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    if [ "$WITH_OCR" = "true" ]; then \
+        uv sync --frozen --no-install-project --no-dev --extra ocr --inexact; \
     fi
 
 # ---------------------------------------------------------------------------

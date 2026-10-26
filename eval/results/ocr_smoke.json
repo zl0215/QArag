@@ -1,0 +1,37 @@
+{
+  "scope": "synthetic OCR and BM25 pipeline acceptance; not semantic retrieval evaluation",
+  "cases": [
+    {
+      "case": "scanned",
+      "native_only_rejected": true,
+      "ocr_pages": [
+        1,
+        2
+      ],
+      "phrase_checks": 5,
+      "phrases_recovered": 5,
+      "bm25_evidence_found": true,
+      "retrieved_page": 1,
+      "extraction_method": "ocr",
+      "status": "ready",
+      "elapsed_seconds": 7.45,
+      "two_column_order_verified": true
+    },
+    {
+      "case": "mixed",
+      "native_only_rejected": true,
+      "ocr_pages": [
+        2
+      ],
+      "phrase_checks": 5,
+      "phrases_recovered": 5,
+      "bm25_evidence_found": true,
+      "retrieved_page": 2,
+      "extraction_method": "ocr",
+      "status": "ready",
+      "elapsed_seconds": 2.44,
+      "two_column_order_verified": null
+    }
+  ],
+  "blank_page_detected": true
+}

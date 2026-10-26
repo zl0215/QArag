@@ -1,5 +1,7 @@
 # 部署说明：模型跑在哪里，以及为什么
 
+扫描 PDF 的 OCR 依赖、模型目录、容器构建与验收见 [扫描 PDF 处理手册](SCANNED_PDF.md)。
+
 这份文档回答三个问题：
 
 1. `EMBED_PROVIDER=local / api` 到底在切什么？

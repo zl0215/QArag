@@ -30,6 +30,8 @@ class KnowledgeResult(BaseModel):
     dense_score: float | None = None
     rerank_score: float | None = None
     node_type: str = "paragraph"
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
 
     def to_agent_chunk(self) -> dict[str, Any]:
         return {
@@ -46,6 +48,8 @@ class KnowledgeResult(BaseModel):
             "dense_score": self.dense_score,
             "rerank_score": self.rerank_score,
             "label": self.source,
+            "extraction_method": self.extraction_method,
+            "ocr_confidence": self.ocr_confidence,
         }
 
 
@@ -123,6 +127,8 @@ async def search_knowledge(
             dense_score=chunk.dense_score,
             rerank_score=chunk.rerank_score,
             node_type=chunk.node_type,
+            extraction_method=chunk.extraction_method,
+            ocr_confidence=chunk.ocr_confidence,
         )
         for chunk in result.chunks
     ]

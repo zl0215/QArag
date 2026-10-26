@@ -223,6 +223,8 @@ def _to_chat_response(thread_id: str, state: dict) -> ChatResponse:
             chunk_id=int(c.get("chunk_id") or 0),
             label=source.get("label") or _label(source),
             quote=c.get("quote") or "",
+            extraction_method=source.get("extraction_method", "native"),
+            ocr_confidence=source.get("ocr_confidence"),
         ))
     return ChatResponse(
         thread_id=thread_id,
@@ -422,6 +424,8 @@ async def get_job(job_id: int, request: Request) -> dict:
 def _doc_out(d) -> DocumentOut:  # noqa: ANN001
     return DocumentOut(
         id=d.id, title=d.title, status=d.status,
+        ocr_pages=(getattr(d, "extra", None) or {}).get("ocr_pages", []),
+        parse_warnings=(getattr(d, "extra", None) or {}).get("parse_warnings", []),
         mime_type=d.mime_type or "", lang=d.lang,
         page_count=d.page_count or 0, chunk_count=d.chunk_count or 0,
         size_bytes=d.size_bytes or 0, error_message=d.error_message,

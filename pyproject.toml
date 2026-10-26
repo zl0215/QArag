@@ -62,6 +62,7 @@ dev = [
     "pytest-asyncio>=0.24",
     "hypothesis>=6.100",
     "ruff>=0.7",
+    "reportlab>=4,<5",
 ]
 # Milvus Lite：向量库变成**一个本地文件**，零网络依赖、不需要 Docker。
 #
@@ -75,6 +76,10 @@ dev = [
 # 带 faiss-cpu + pyarrow，约 42MB，只在需要时用 --extra lite 拉。
 lite = [
     "milvus-lite>=3",
+]
+ocr = [
+    "onnxruntime>=1.18,<2",
+    "rapidocr>=3.10,<3.11",
 ]
 
 # ★ 这里是 src 布局，项目**必须**能被装成一个包。
@@ -107,6 +112,7 @@ packages = ["src/rag"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 addopts = "-q --strict-markers"
@@ -114,6 +120,7 @@ markers = [
     "unit: 纯函数，毫秒级",
     "integration: 需要真实 Postgres / Milvus",
     "eval: 需要模型与评测集，夜间跑",
+    "ocr: 需要可选 OCR 依赖与本地 OCR 模型",
 ]
 
 [tool.ruff]

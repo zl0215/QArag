@@ -18,6 +18,8 @@ from pydantic import BaseModel, Field, field_validator
 # ======================================================================
 class RetrievedChunkOut(BaseModel):
     chunk_id: int
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
     content: str
     score: float
     document_id: int
@@ -109,6 +111,8 @@ class CitationOut(BaseModel):
     label: str
     quote: str
     verified: bool = True
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
 
 
 class ChatResponse(BaseModel):
@@ -127,6 +131,8 @@ class ChatResponse(BaseModel):
 # ======================================================================
 class DocumentOut(BaseModel):
     id: int
+    ocr_pages: list[int] = Field(default_factory=list)
+    parse_warnings: list[str] = Field(default_factory=list)
     title: str
     status: str
     mime_type: str = ""

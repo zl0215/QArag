@@ -28,6 +28,7 @@ from rag.core.config import Settings
 from rag.core.errors import ServiceUnavailableError
 from rag.core.logging import get_logger
 from rag.infra import build_repository, build_vector_store
+from rag.parsers.ocr import OCRConfig
 from rag.providers import build_embedding_provider, build_llm, build_reranker
 from rag.providers.base import is_enabled
 from rag.services.academic import AcademicService
@@ -129,6 +130,7 @@ class AppContext:
                 embedder=self.embedder,
                 chunker=chunker,
                 chunker_version=settings.chunker_version,
+                ocr=OCRConfig.from_settings(settings),
             )
 
         # ---- 5. checkpointer ----

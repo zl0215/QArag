@@ -171,6 +171,7 @@ def parse_document(
     doc_id: str,
     file_name: str | None = None,
     sha256: str | None = None,
+    ocr=None,
 ) -> ParsedDocument:
     """解析入口。
 
@@ -194,7 +195,7 @@ def parse_document(
     if mime == PDF:
         from rag.parsers.pdf import parse_pdf
 
-        return parse_pdf(path, meta)
+        return parse_pdf(path, meta, ocr=ocr)
     if mime == DOCX:
         from rag.parsers.docx import parse_docx
 

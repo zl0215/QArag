@@ -79,6 +79,8 @@ class RetrievedChunk:
     dense_score: float | None = None
     # 同 section 的兄弟块 —— small-to-big 用，不进上下文，按需展开
     sibling_ids: list[int] = field(default_factory=list)
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
 
     @property
     def label(self) -> str:
@@ -398,6 +400,8 @@ class RetrievalService:
             page_start=record.page_start,
             page_end=record.page_end,
             node_type=record.node_type,
+            extraction_method=record.extraction_method,
+            ocr_confidence=record.ocr_confidence,
             dense_rank=min(dense_ranks, default=None),
             sparse_rank=min(sparse_ranks, default=None),
             rerank_score=item.scores.get("rerank"),

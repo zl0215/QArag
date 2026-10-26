@@ -40,6 +40,9 @@ class DocMeta(BaseModel):
     parser_cfg_hash: str = ""
     title: str = ""
     parse_warnings: list[str] = Field(default_factory=list)
+    ocr_pages: list[int] = Field(default_factory=list)
+    blank_pages: list[int] = Field(default_factory=list)
+    ocr_stats: dict[str, dict] = Field(default_factory=dict)
 
 
 class DocNode(BaseModel):
@@ -60,6 +63,8 @@ class DocNode(BaseModel):
     char_start: int = 0
     char_end: int = 0
     bbox: tuple[float, float, float, float] | None = None
+    extraction_method: str = "native"
+    ocr_confidence: float | None = None
     # 表格
     table_cells: list[list[str]] | None = None
     table_markdown: str | None = None

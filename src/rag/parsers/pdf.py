@@ -18,8 +18,10 @@ from pathlib import Path
 
 import pdfplumber
 
+from rag.core.errors import NeedsOCRError
 from rag.core.logging import get_logger
 from rag.parsers.base import finalize
+from rag.parsers.ocr import OCRConfig, needs_ocr, recognize_page
 from rag.parsers.tables import table_to_markdown
 from rag.schemas.document import DocMeta, DocNode, NodeType, ParsedDocument, make_node_id
 
@@ -277,7 +279,11 @@ def _is_page_number(text: str) -> bool:
     return stripped.isdigit() or stripped.strip("-— 第页共/").isdigit()
 
 
-def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
+def parse_pdf(path: Path, meta: DocMeta, *, ocr: OCRConfig | None = None) -> ParsedDocument:
+    if ocr is None:
+        from rag.core.config import get_settings
+
+        ocr = OCRConfig.from_settings(get_settings())
     nodes: list[DocNode] = []
     warnings: list[str] = []
     reading_order = 0
@@ -308,12 +314,40 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
 
         # ---- 第一遍：抽取所有行与表格，统计字号分布 ----
         for page_no, page in enumerate(pdf.pages, start=1):
+            extraction_failed = False
             try:
                 lines, column_split = _extract_layout_lines(page)
             except Exception as exc:  # pdfplumber 对畸形 PDF 会抛各种异常
                 warnings.append(f"第 {page_no} 页文本抽取失败：{type(exc).__name__}")
                 lines = []
                 column_split = None
+                extraction_failed = True
+
+            page_ocr = extraction_failed or needs_ocr(page, lines, ocr)
+            if page_ocr:
+                if ocr.mode == "off":
+                    raise NeedsOCRError(
+                        f"第 {page_no} 页缺少可靠文本层，请启用 PDF_OCR_MODE=auto。",
+                        pages=[page_no], reason="ocr_disabled",
+                    )
+                if len(meta.ocr_pages) >= ocr.max_pages:
+                    raise NeedsOCRError(
+                        f"OCR 页数超过上限 {ocr.max_pages}，请拆分文档。",
+                        pages=[page_no], reason="ocr_page_limit",
+                    )
+                try:
+                    lines, column_split, stats = recognize_page(page, ocr)
+                except NeedsOCRError as exc:
+                    exc.extensions["pages"] = [page_no]
+                    raise
+                meta.ocr_pages.append(page_no)
+                meta.ocr_stats[str(page_no)] = stats
+                if stats.get("blank"):
+                    meta.blank_pages.append(page_no)
+                if stats.get("rejected"):
+                    warnings.append(
+                        f"第 {page_no} 页过滤 {stats['rejected']} 个低置信 OCR 文本框，请核对原文"
+                    )
 
             tables = []
             try:
@@ -331,6 +365,7 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
                 "lines": lines,
                 "tables": tables,
                 "column_split": column_split,
+                "ocr": page_ocr,
             })
 
         # ---- 统计 ----
@@ -351,8 +386,11 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
             [pg["lines"] for pg in raw_pages], [pg["height"] for pg in raw_pages]
         )
 
+        if total_chars == 0:
+            # PDF title/author metadata alone is not searchable document content.
+            nodes.clear()
         if total_chars < _MIN_CHARS_PER_PAGE * max(len(raw_pages), 1):
-            warnings.append("整份文档可抽取文本极少，可能是扫描件（需要 OCR）")
+            warnings.append("整份文档有效正文较少，请核对扫描页与空白页")
 
         # ---- 第二遍：按阅读顺序产出节点 ----
         heading_stack: list[tuple[int, str]] = []
@@ -383,7 +421,9 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
                     if chars else 0.0
                 )
                 column = int(line.get("column", 0))
-                items.append(((column, float(line["top"])), "line", {
+                sort_key = ((0, line["ocr_order"]) if "ocr_order" in line
+                            else (column, float(line["top"])))
+                items.append((sort_key, "line", {
                     "text": text,
                     "size": round(size, 1),
                     "column": column,
@@ -391,6 +431,7 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
                     "bottom": float(line["bottom"]),
                     "x0": float(line.get("x0", 0)),
                     "x1": float(line.get("x1", width)),
+                    "ocr_confidence": line.get("ocr_confidence"),
                 }))
 
             for tbl in pg["tables"]:
@@ -421,6 +462,8 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
                     char_start=cursor,
                     char_end=cursor + len(text),
                     bbox=bbox,
+                    extraction_method="ocr" if node_page in meta.ocr_pages else "native",
+                    ocr_confidence=meta.ocr_stats.get(str(node_page), {}).get("mean_confidence"),
                 )
                 cursor += len(text) + 2
                 nodes.append(node)
@@ -487,7 +530,8 @@ def parse_pdf(path: Path, meta: DocMeta) -> ParsedDocument:
             flush_paragraph()
 
     meta.parse_warnings.extend(warnings)
-    return finalize(meta, nodes, parser_name=f"{PARSER_NAME}:pdf")
+    suffix = "+rapidocr" if set(meta.ocr_pages) - set(meta.blank_pages) else ""
+    return finalize(meta, nodes, parser_name=f"{PARSER_NAME}:pdf{suffix}")
 
 
 def _render_heading_path(stack: list[tuple[int, str]]) -> str:
